@@ -237,7 +237,7 @@ public class QueryPlan {
 
     return this
         .executeNaive(); // TODO(proj3_part2): Replace this!!! Allows you to test intermediate
-                         // functionality
+    // functionality
   }
 
   /**
