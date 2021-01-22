@@ -1,10 +1,6 @@
 # MOOCbase
 
-UCB CS 186, Fall 2020
-
-- labs writeup: https://github.com/berkeley-cs186/project-gitbook/tree/6c181d88cc86a6c941b13af9e2eb279df845983f/assignments
-- codebase: https://github.com/foxtrot9/fa20-moocbase
-- slides, videos and etc: http://cs186berkeley.net/fa20/
+UCB CS 186, Fall 2020, see site http://cs186berkeley.net/fa20/
 
 ---
 
