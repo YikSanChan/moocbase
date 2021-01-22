@@ -2,7 +2,8 @@ package edu.berkeley.cs186.database.memory;
 
 import edu.berkeley.cs186.database.common.AbstractBuffer;
 import edu.berkeley.cs186.database.common.Buffer;
-import edu.berkeley.cs186.database.concurrency.*;
+import edu.berkeley.cs186.database.concurrency.DummyLockContext;
+import edu.berkeley.cs186.database.concurrency.LockContext;
 import edu.berkeley.cs186.database.io.PageException;
 
 /**

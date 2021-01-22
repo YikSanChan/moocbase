@@ -4,17 +4,17 @@ package edu.berkeley.cs186.database.cli.parser;
 
 public
 class ASTLimit extends SimpleNode {
-  public ASTLimit(int id) {
-    super(id);
-  }
+    public ASTLimit(int id) {
+        super(id);
+    }
 
-  public ASTLimit(MoocParser p, int id) {
-    super(p, id);
-  }
+    public ASTLimit(MoocParser p, int id) {
+        super(p, id);
+    }
 
-  /** Accept the visitor. **/
-  public void jjtAccept(MoocParserVisitor visitor, Object data) {
-    visitor.visit(this, data);
-  }
+    /** Accept the visitor. **/
+    public void jjtAccept(MoocParserVisitor visitor, Object data) {
+        visitor.visit(this, data);
+    }
 }
 /* JavaCC - OriginalChecksum=e546b6b36590947d487a213d91f5fea2 (do not edit this line) */

@@ -1,14 +1,14 @@
 package edu.berkeley.cs186.database.table.stats;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import edu.berkeley.cs186.database.common.PredicateOperator;
 import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.databox.Type;
 import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.Schema;
 import edu.berkeley.cs186.database.table.Table;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Every table in a database maintains a set of table statistics which are
@@ -88,7 +88,7 @@ public class TableStats {
         }
 
         this.histograms = newHistograms;
-        this.numRecords = Math.round(((float)totalRecords) / count);
+        this.numRecords = Math.round(((float) totalRecords) / count);
     }
 
     public void removeRecord(Record record) {
@@ -121,6 +121,7 @@ public class TableStats {
     }
 
     // Copiers ///////////////////////////////////////////////////////////////////
+
     /**
      * Estimates the table statistics for the table that would be produced after
      * filtering column `i` with `predicate` and `value`. For simplicity, we
@@ -240,7 +241,7 @@ public class TableStats {
             copyHistograms.add(rightHistogram.copyWithReduction(rightReductionFactor));
         }
 
-        int outputSize = (int)(reductionFactor * inputSize);
+        int outputSize = (int) (reductionFactor * inputSize);
 
         return new TableStats(joinedSchema, this.numRecordsPerPage, outputSize, copyHistograms);
     }

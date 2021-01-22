@@ -1,30 +1,39 @@
 package edu.berkeley.cs186.database;
 
+import edu.berkeley.cs186.database.common.ByteBuffer;
+import edu.berkeley.cs186.database.common.Pair;
+import edu.berkeley.cs186.database.common.PredicateOperator;
+import edu.berkeley.cs186.database.common.iterator.BacktrackingIterator;
+import edu.berkeley.cs186.database.concurrency.DummyLockManager;
+import edu.berkeley.cs186.database.concurrency.LockContext;
+import edu.berkeley.cs186.database.concurrency.LockManager;
+import edu.berkeley.cs186.database.concurrency.LockType;
+import edu.berkeley.cs186.database.databox.*;
+import edu.berkeley.cs186.database.index.BPlusTree;
+import edu.berkeley.cs186.database.index.BPlusTreeMetadata;
+import edu.berkeley.cs186.database.io.DiskSpaceManager;
+import edu.berkeley.cs186.database.io.DiskSpaceManagerImpl;
+import edu.berkeley.cs186.database.memory.*;
+import edu.berkeley.cs186.database.query.QueryPlan;
+import edu.berkeley.cs186.database.query.QueryPlanException;
+import edu.berkeley.cs186.database.query.SortOperator;
+import edu.berkeley.cs186.database.recovery.ARIESRecoveryManager;
+import edu.berkeley.cs186.database.recovery.DummyRecoveryManager;
+import edu.berkeley.cs186.database.recovery.RecoveryManager;
+import edu.berkeley.cs186.database.table.*;
+import edu.berkeley.cs186.database.table.stats.TableStats;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Phaser;
 import java.util.function.UnaryOperator;
-
-import edu.berkeley.cs186.database.common.ByteBuffer;
-import edu.berkeley.cs186.database.common.PredicateOperator;
-import edu.berkeley.cs186.database.common.iterator.BacktrackingIterator;
-import edu.berkeley.cs186.database.common.Pair;
-import edu.berkeley.cs186.database.concurrency.*;
-import edu.berkeley.cs186.database.databox.*;
-import edu.berkeley.cs186.database.index.BPlusTree;
-import edu.berkeley.cs186.database.index.BPlusTreeMetadata;
-import edu.berkeley.cs186.database.io.*;
-import edu.berkeley.cs186.database.memory.*;
-import edu.berkeley.cs186.database.query.QueryPlan;
-import edu.berkeley.cs186.database.query.QueryPlanException;
-import edu.berkeley.cs186.database.query.SortOperator;
-import edu.berkeley.cs186.database.recovery.*;
-import edu.berkeley.cs186.database.table.*;
-import edu.berkeley.cs186.database.table.stats.TableStats;
 
 /**
  * Database objects keeps track of transactions, tables, and indices
@@ -112,7 +121,7 @@ public class Database implements AutoCloseable {
      * @param fileDir the directory to put the table files in
      */
     public Database(String fileDir) {
-        this (fileDir, DEFAULT_BUFFER_SIZE);
+        this(fileDir, DEFAULT_BUFFER_SIZE);
     }
 
     /**
@@ -187,7 +196,7 @@ public class Database implements AutoCloseable {
 
         diskSpaceManager = new DiskSpaceManagerImpl(fileDir, recoveryManager);
         bufferManager = new BufferManagerImpl(diskSpaceManager, recoveryManager, numMemoryPages,
-                                              policy);
+                policy);
 
         if (!initialized) {
             // create log partition
@@ -257,15 +266,15 @@ public class Database implements AutoCloseable {
         HeapFile tableInfoHeapFile = new PageDirectory(bufferManager, 1, tableInfoPage0, (short) 0,
                 tableInfoContext);
         tableInfo = new Table(TABLE_INFO_TABLE_NAME, getTableInfoSchema(), tableInfoHeapFile,
-                              tableInfoContext);
+                tableInfoContext);
         tableInfo.disableAutoEscalate();
         tableInfoLookup.put(TABLE_INFO_TABLE_NAME, tableInfo.addRecord(Arrays.asList(
-                                new StringDataBox(TABLE_INFO_TABLE_NAME, 32),
-                                new IntDataBox(1),
-                                new LongDataBox(tableInfoPage0),
-                                new BoolDataBox(false),
-                                new StringDataBox(new String(getTableInfoSchema().toBytes()), MAX_SCHEMA_SIZE)
-                            )));
+                new StringDataBox(TABLE_INFO_TABLE_NAME, 32),
+                new IntDataBox(1),
+                new LongDataBox(tableInfoPage0),
+                new BoolDataBox(false),
+                new StringDataBox(new String(getTableInfoSchema().toBytes()), MAX_SCHEMA_SIZE)
+        )));
         tableLookup.put(TABLE_INFO_TABLE_NAME, tableInfo);
         tableIndices.put(TABLE_INFO_TABLE_NAME, Collections.emptyList());
 
@@ -282,17 +291,17 @@ public class Database implements AutoCloseable {
 
         LockContext indexInfoContext = getIndexInfoContext();
         HeapFile heapFile = new PageDirectory(bufferManager, 2, indexInfoPage0, (short) 0,
-                                              indexInfoContext);
+                indexInfoContext);
         indexInfo = new Table(INDEX_INFO_TABLE_NAME, getIndexInfoSchema(), heapFile, indexInfoContext);
         indexInfo.disableAutoEscalate();
         indexInfo.setFullPageRecords();
         tableInfoLookup.put(INDEX_INFO_TABLE_NAME, tableInfo.addRecord(Arrays.asList(
-                                new StringDataBox(INDEX_INFO_TABLE_NAME, 32),
-                                new IntDataBox(2),
-                                new LongDataBox(indexInfoPage0),
-                                new BoolDataBox(false),
-                                new StringDataBox(new String(getIndexInfoSchema().toBytes()), MAX_SCHEMA_SIZE)
-                            )));
+                new StringDataBox(INDEX_INFO_TABLE_NAME, 32),
+                new IntDataBox(2),
+                new LongDataBox(indexInfoPage0),
+                new BoolDataBox(false),
+                new StringDataBox(new String(getIndexInfoSchema().toBytes()), MAX_SCHEMA_SIZE)
+        )));
         tableLookup.put(INDEX_INFO_TABLE_NAME, indexInfo);
         tableIndices.put(INDEX_INFO_TABLE_NAME, Collections.emptyList());
 
@@ -306,7 +315,7 @@ public class Database implements AutoCloseable {
         HeapFile tableInfoHeapFile = new PageDirectory(bufferManager, 1,
                 DiskSpaceManager.getVirtualPageNum(1, 0), (short) 0, tableInfoContext);
         tableInfo = new Table(TABLE_INFO_TABLE_NAME, getTableInfoSchema(), tableInfoHeapFile,
-                              tableInfoContext);
+                tableInfoContext);
         tableInfo.disableAutoEscalate();
         tableLookup.put(TABLE_INFO_TABLE_NAME, tableInfo);
         tableIndices.put(TABLE_INFO_TABLE_NAME, Collections.emptyList());
@@ -315,7 +324,7 @@ public class Database implements AutoCloseable {
         HeapFile indexInfoHeapFile = new PageDirectory(bufferManager, 2,
                 DiskSpaceManager.getVirtualPageNum(2, 0), (short) 0, indexInfoContext);
         indexInfo = new Table(INDEX_INFO_TABLE_NAME, getIndexInfoSchema(), indexInfoHeapFile,
-                              indexInfoContext);
+                indexInfoContext);
         indexInfo.disableAutoEscalate();
         indexInfo.setFullPageRecords();
         tableLookup.put(INDEX_INFO_TABLE_NAME, indexInfo);
@@ -369,7 +378,7 @@ public class Database implements AutoCloseable {
                     // if table exists due to X(table metadata) lock
                     LockContext tableContext = getTableContext(record.tableName, record.partNum);
                     HeapFile heapFile = new PageDirectory(bufferManager, record.partNum, record.pageNum, (short) 0,
-                                                          tableContext);
+                            tableContext);
                     Table table = new Table(record.tableName, record.schema, heapFile, tableContext);
                     tableLookup.put(record.tableName, table);
 
@@ -547,10 +556,10 @@ public class Database implements AutoCloseable {
      */
     private Schema getTableInfoSchema() {
         return new Schema(
-                   Arrays.asList("table_name", "part_num", "page_num", "is_temporary", "schema"),
-                   Arrays.asList(Type.stringType(32), Type.intType(), Type.longType(), Type.boolType(),
-                                 Type.stringType(MAX_SCHEMA_SIZE))
-               );
+                Arrays.asList("table_name", "part_num", "page_num", "is_temporary", "schema"),
+                Arrays.asList(Type.stringType(32), Type.intType(), Type.longType(), Type.boolType(),
+                        Type.stringType(MAX_SCHEMA_SIZE))
+        );
     }
 
     /**
@@ -568,11 +577,11 @@ public class Database implements AutoCloseable {
      */
     private Schema getIndexInfoSchema() {
         return new Schema(
-                   Arrays.asList("table_name", "col_name", "order", "part_num", "root_page_num", "key_schema_typeid",
-                                 "key_schema_typesize", "height"),
-                   Arrays.asList(Type.stringType(32), Type.stringType(32), Type.intType(), Type.intType(),
-                                 Type.longType(), Type.intType(), Type.intType(), Type.intType())
-               );
+                Arrays.asList("table_name", "col_name", "order", "part_num", "root_page_num", "key_schema_typeid",
+                        "key_schema_typesize", "height"),
+                Arrays.asList(Type.stringType(32), Type.stringType(32), Type.intType(), Type.intType(),
+                        Type.longType(), Type.intType(), Type.intType(), Type.intType())
+        );
     }
 
     // a single row of information_schema.tables
@@ -602,12 +611,12 @@ public class Database implements AutoCloseable {
 
         List<DataBox> toDataBox() {
             return Arrays.asList(
-                       new StringDataBox(tableName, 32),
-                       new IntDataBox(partNum),
-                       new LongDataBox(pageNum),
-                       new BoolDataBox(isTemporary),
-                       new StringDataBox(new String(schema.toBytes()), MAX_SCHEMA_SIZE)
-                   );
+                    new StringDataBox(tableName, 32),
+                    new IntDataBox(partNum),
+                    new LongDataBox(pageNum),
+                    new BoolDataBox(isTemporary),
+                    new StringDataBox(new String(schema.toBytes()), MAX_SCHEMA_SIZE)
+            );
         }
 
         boolean isAllocated() {
@@ -714,15 +723,15 @@ public class Database implements AutoCloseable {
                 }
                 String[] parts = indexName.split(",", 2);
                 return Database.this.indexInfo.addRecord(Arrays.asList(
-                            new StringDataBox(parts[0], 32),
-                            new StringDataBox(parts[1], 32),
-                            new IntDataBox(-1),
-                            new IntDataBox(-1),
-                            new LongDataBox(DiskSpaceManager.INVALID_PAGE_NUM),
-                            new IntDataBox(TypeId.INT.ordinal()),
-                            new IntDataBox(4),
-                            new IntDataBox(-1)
-                        ));
+                        new StringDataBox(parts[0], 32),
+                        new StringDataBox(parts[1], 32),
+                        new IntDataBox(-1),
+                        new IntDataBox(-1),
+                        new LongDataBox(DiskSpaceManager.INVALID_PAGE_NUM),
+                        new IntDataBox(TypeId.INT.ordinal()),
+                        new IntDataBox(4),
+                        new IntDataBox(-1)
+                ));
             });
         }
 
@@ -884,15 +893,15 @@ public class Database implements AutoCloseable {
         @Override
         public void updateIndexMetadata(BPlusTreeMetadata metadata) {
             indexInfo.updateRecord(Arrays.asList(
-                                       new StringDataBox(metadata.getTableName(), 32),
-                                       new StringDataBox(metadata.getColName(), 32),
-                                       new IntDataBox(metadata.getOrder()),
-                                       new IntDataBox(metadata.getPartNum()),
-                                       new LongDataBox(metadata.getRootPageNum()),
-                                       new IntDataBox(metadata.getKeySchema().getTypeId().ordinal()),
-                                       new IntDataBox(metadata.getKeySchema().getSizeInBytes()),
-                                       new IntDataBox(metadata.getHeight())
-                                   ), indexInfoLookup.get(metadata.getName()));
+                    new StringDataBox(metadata.getTableName(), 32),
+                    new StringDataBox(metadata.getColName(), 32),
+                    new IntDataBox(metadata.getOrder()),
+                    new IntDataBox(metadata.getPartNum()),
+                    new LongDataBox(metadata.getRootPageNum()),
+                    new IntDataBox(metadata.getKeySchema().getTypeId().ordinal()),
+                    new IntDataBox(metadata.getKeySchema().getSizeInBytes()),
+                    new IntDataBox(metadata.getHeight())
+            ), indexInfoLookup.get(metadata.getName()));
         }
 
         @Override
@@ -907,7 +916,7 @@ public class Database implements AutoCloseable {
                 int offset = getTable(tableName).getSchema().getFieldNames().indexOf(columnName);
                 try {
                     return new SortOperator(this, tableName,
-                                            Comparator.comparing((Record r) -> r.getValues().get(offset))).iterator();
+                            Comparator.comparing((Record r) -> r.getValues().get(offset))).iterator();
                 } catch (QueryPlanException e2) {
                     throw new DatabaseException(e2);
                 }
@@ -942,7 +951,7 @@ public class Database implements AutoCloseable {
 
         @Override
         public BacktrackingIterator<Record> getBlockIterator(String tableName, Iterator<Page> block,
-                int maxPages) {
+                                                             int maxPages) {
             return getTable(tableName).blockIterator(block, maxPages);
         }
 
@@ -1018,7 +1027,7 @@ public class Database implements AutoCloseable {
             int uindex = s.getFieldNames().indexOf(targetColumnName);
             int pindex = s.getFieldNames().indexOf(predColumnName);
 
-            while(recordIds.hasNext()) {
+            while (recordIds.hasNext()) {
                 RecordId curRID = recordIds.next();
                 Record cur = getRecord(tableName, curRID);
                 List<DataBox> recordCopy = new ArrayList<>(cur.getValues());
@@ -1039,7 +1048,7 @@ public class Database implements AutoCloseable {
             Schema s = tab.getSchema();
             int pindex = s.getFieldNames().indexOf(predColumnName);
 
-            while(recordIds.hasNext()) {
+            while (recordIds.hasNext()) {
                 RecordId curRID = recordIds.next();
                 Record cur = getRecord(tableName, curRID);
                 List<DataBox> recordCopy = new ArrayList<>(cur.getValues());
@@ -1113,7 +1122,7 @@ public class Database implements AutoCloseable {
         }
 
         private Pair<String, BPlusTreeMetadata> resolveIndexMetadataFromName(String tableName,
-                String columnName) {
+                                                                             String columnName) {
             if (aliases.containsKey(tableName)) {
                 tableName = aliases.get(tableName);
             }
@@ -1140,7 +1149,7 @@ public class Database implements AutoCloseable {
         }
 
         private Pair<String, BPlusTree> resolveIndexFromName(String tableName,
-                String columnName) {
+                                                             String columnName) {
             String indexName = resolveIndexMetadataFromName(tableName, columnName).getFirst();
             return new Pair<>(indexName, Database.this.indexLookup.get(indexName));
         }
@@ -1256,9 +1265,9 @@ public class Database implements AutoCloseable {
 
                 LockContext tableContext = getTableContext(prefixedTableName, record.partNum);
                 HeapFile heapFile = new PageDirectory(bufferManager, record.partNum, record.pageNum,
-                                                      (short) 0, tableContext);
+                        (short) 0, tableContext);
                 tableLookup.put(prefixedTableName, new Table(prefixedTableName, s,
-                                heapFile, tableContext));
+                        heapFile, tableContext));
                 tableIndices.put(prefixedTableName, new ArrayList<>());
             } finally {
                 TransactionContext.unsetTransaction();
@@ -1354,15 +1363,15 @@ public class Database implements AutoCloseable {
 
                 int order = BPlusTree.maxOrder(BufferManager.EFFECTIVE_PAGE_SIZE, colType);
                 List<DataBox> values = Arrays.asList(
-                                           new StringDataBox(tableName, 32),
-                                           new StringDataBox(columnName, 32),
-                                           new IntDataBox(order),
-                                           new IntDataBox(diskSpaceManager.allocPart()),
-                                           new LongDataBox(DiskSpaceManager.INVALID_PAGE_NUM),
-                                           new IntDataBox(colType.getTypeId().ordinal()),
-                                           new IntDataBox(colType.getSizeInBytes()),
-                                           new IntDataBox(-1)
-                                       );
+                        new StringDataBox(tableName, 32),
+                        new StringDataBox(columnName, 32),
+                        new IntDataBox(order),
+                        new IntDataBox(diskSpaceManager.allocPart()),
+                        new LongDataBox(DiskSpaceManager.INVALID_PAGE_NUM),
+                        new IntDataBox(colType.getTypeId().ordinal()),
+                        new IntDataBox(colType.getSizeInBytes()),
+                        new IntDataBox(-1)
+                );
                 indexInfo.updateRecord(values, indexInfoLookup.get(indexName));
                 metadata = parseIndexMetadata(new Record(values));
                 assert (metadata != null);
@@ -1402,15 +1411,15 @@ public class Database implements AutoCloseable {
                     throw new DatabaseException("no index on " + tableName + "(" + columnName + ")");
                 }
                 indexInfo.updateRecord(Arrays.asList(
-                                           new StringDataBox(tableName, 32),
-                                           new StringDataBox(columnName, 32),
-                                           new IntDataBox(-1),
-                                           new IntDataBox(-1),
-                                           new LongDataBox(DiskSpaceManager.INVALID_PAGE_NUM),
-                                           new IntDataBox(TypeId.INT.ordinal()),
-                                           new IntDataBox(4),
-                                           new IntDataBox(-1)
-                                       ), indexInfoLookup.get(indexName));
+                        new StringDataBox(tableName, 32),
+                        new StringDataBox(columnName, 32),
+                        new IntDataBox(-1),
+                        new IntDataBox(-1),
+                        new LongDataBox(DiskSpaceManager.INVALID_PAGE_NUM),
+                        new IntDataBox(TypeId.INT.ordinal()),
+                        new IntDataBox(4),
+                        new IntDataBox(-1)
+                ), indexInfoLookup.get(indexName));
 
                 bufferManager.freePart(metadata.getPartNum());
                 indexLookup.remove(indexName);
@@ -1460,7 +1469,7 @@ public class Database implements AutoCloseable {
             TransactionContext.setTransaction(transactionContext);
             try {
                 transactionContext.runUpdateRecordWhere(tableName, targetColumnName, targetValue, predColumnName,
-                                                        predOperator, predValue);
+                        predOperator, predValue);
             } finally {
                 TransactionContext.unsetTransaction();
             }

@@ -16,7 +16,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -63,7 +65,11 @@ public class TestPageDirectory {
         Page p4 = pageDirectory.getPageWithSpace((short) (pageSize - 60));
         Page p5 = pageDirectory.getPageWithSpace((short) 120);
 
-        p1.unpin(); p2.unpin(); p3.unpin(); p4.unpin(); p5.unpin();
+        p1.unpin();
+        p2.unpin();
+        p3.unpin();
+        p4.unpin();
+        p5.unpin();
 
         assertNotEquals(p1, p2);
         assertEquals(p2, p3);
@@ -88,7 +94,7 @@ public class TestPageDirectory {
         } catch (IllegalArgumentException e) { /* do nothing */ }
 
         try {
-            pageDirectory.getPageWithSpace((short) - 1);
+            pageDirectory.getPageWithSpace((short) -1);
             fail();
         } catch (IllegalArgumentException e) { /* do nothing */ }
     }
@@ -104,7 +110,11 @@ public class TestPageDirectory {
         Page p4 = pageDirectory.getPageWithSpace((short) (pageSize - 60));
         Page p5 = pageDirectory.getPageWithSpace((short) 120);
 
-        p1.unpin(); p2.unpin(); p3.unpin(); p4.unpin(); p5.unpin();
+        p1.unpin();
+        p2.unpin();
+        p3.unpin();
+        p4.unpin();
+        p5.unpin();
 
         Page pp1 = pageDirectory.getPage(p1.getPageNum());
         Page pp2 = pageDirectory.getPage(p2.getPageNum());
@@ -112,7 +122,11 @@ public class TestPageDirectory {
         Page pp4 = pageDirectory.getPage(p4.getPageNum());
         Page pp5 = pageDirectory.getPage(p5.getPageNum());
 
-        pp1.unpin(); pp2.unpin(); pp3.unpin(); pp4.unpin(); pp5.unpin();
+        pp1.unpin();
+        pp2.unpin();
+        pp3.unpin();
+        pp4.unpin();
+        pp5.unpin();
 
         assertEquals(p1, pp1);
         assertEquals(p2, pp2);
@@ -179,7 +193,7 @@ public class TestPageDirectory {
         p1.unpin();
 
         try {
-            pageDirectory.updateFreeSpace(p1, (short) - 1);
+            pageDirectory.updateFreeSpace(p1, (short) -1);
             fail();
         } catch (IllegalArgumentException e) { /* do nothing */ }
 

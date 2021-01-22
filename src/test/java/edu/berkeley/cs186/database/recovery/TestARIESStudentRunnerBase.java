@@ -40,7 +40,7 @@ public abstract class TestARIESStudentRunnerBase {
     // 1 second per test
     @Rule
     public TestRule globalTimeout = new DisableOnDebug(Timeout.millis((long) (
-                1000 * TimeoutScaling.factor)));
+            1000 * TimeoutScaling.factor)));
 
     abstract String getSuffix();
 
@@ -48,10 +48,10 @@ public abstract class TestARIESStudentRunnerBase {
     @SuppressWarnings("unchecked")
     public void setup() throws Exception {
         assertNotNull("TestARIESStudent should have @Category({Proj5Tests.class, StudentTests.class})",
-                      TestARIESStudent.class.getAnnotation(Category.class));
+                TestARIESStudent.class.getAnnotation(Category.class));
         assertArrayEquals("TestARIESStudent should have @Category({Proj5Tests.class, StudentTests.class})",
-                          new Class[] { Proj5Tests.class, StudentTests.class }, TestARIESStudent.class.getAnnotation(
-                              Category.class).value());
+                new Class[]{Proj5Tests.class, StudentTests.class}, TestARIESStudent.class.getAnnotation(
+                        Category.class).value());
         for (Method m : TestARIESStudent.class.getMethods()) {
             assertNull("TestARIESStudent methods should not have @Category", m.getAnnotation(Category.class));
         }
@@ -60,7 +60,8 @@ public abstract class TestARIESStudentRunnerBase {
         recoveryManagerClass = (Class<? extends RecoveryManager>) Class.forName(className);
 
         DummyTransaction.cleanupTransactions();
-        LogRecord.onRedoHandler(t -> {});
+        LogRecord.onRedoHandler(t -> {
+        });
     }
 
     private static class AnalysisInstance extends TestInstance {
@@ -161,7 +162,7 @@ public abstract class TestARIESStudentRunnerBase {
 
     private static class IntegrationInstance extends TestInstance {
         private IntegrationInstance(Class<? extends RecoveryManager> recoveryManagerClass) throws
-            Exception {
+                Exception {
             super(recoveryManagerClass, false);
         }
 
@@ -206,12 +207,12 @@ public abstract class TestARIESStudentRunnerBase {
                              boolean limited) throws Exception {
             this.recoveryManagerClass = recoveryManagerClass;
             this.recoveryManagerConstructor = recoveryManagerClass.getDeclaredConstructor(
-                                                  LockContext.class,
-                                                  Function.class,
-                                                  Consumer.class,
-                                                  Supplier.class,
-                                                  boolean.class
-                                              );
+                    LockContext.class,
+                    Function.class,
+                    Consumer.class,
+                    Supplier.class,
+                    boolean.class
+            );
             this.limited = limited;
         }
 
@@ -255,21 +256,21 @@ public abstract class TestARIESStudentRunnerBase {
         @Override
         protected BufferManager getBufferManager(RecoveryManager recoveryManager) throws Exception {
             DelegatedRecoveryManager drm = limited ? ((LimitedRecoveryManager) recoveryManager).inner : ((
-                                               DelegatedRecoveryManager) recoveryManager);
+                    DelegatedRecoveryManager) recoveryManager);
             return (BufferManager) recoveryManagerClass.getDeclaredField("bufferManager").get(drm.inner);
         }
 
         @Override
         protected DiskSpaceManager getDiskSpaceManager(RecoveryManager recoveryManager) throws Exception {
             DelegatedRecoveryManager drm = limited ? ((LimitedRecoveryManager) recoveryManager).inner : ((
-                                               DelegatedRecoveryManager) recoveryManager);
+                    DelegatedRecoveryManager) recoveryManager);
             return (DiskSpaceManager) recoveryManagerClass.getDeclaredField("diskSpaceManager").get(drm.inner);
         }
 
         @Override
         protected LogManager getLogManager(RecoveryManager recoveryManager) throws Exception {
             DelegatedRecoveryManager drm = limited ? ((LimitedRecoveryManager) recoveryManager).inner : ((
-                                               DelegatedRecoveryManager) recoveryManager);
+                    DelegatedRecoveryManager) recoveryManager);
             return (LogManager) recoveryManagerClass.getDeclaredField("logManager").get(drm.inner);
         }
 
@@ -277,14 +278,14 @@ public abstract class TestARIESStudentRunnerBase {
         @SuppressWarnings("unchecked")
         protected List<String> getLockRequests(RecoveryManager recoveryManager) throws Exception {
             DelegatedRecoveryManager drm = limited ? ((LimitedRecoveryManager) recoveryManager).inner : ((
-                                               DelegatedRecoveryManager) recoveryManager);
+                    DelegatedRecoveryManager) recoveryManager);
             return (List<String>) recoveryManagerClass.getDeclaredField("lockRequests").get(drm.inner);
         }
 
         @Override
         protected long getTransactionCounter(RecoveryManager recoveryManager) throws Exception {
             DelegatedRecoveryManager drm = limited ? ((LimitedRecoveryManager) recoveryManager).inner : ((
-                                               DelegatedRecoveryManager) recoveryManager);
+                    DelegatedRecoveryManager) recoveryManager);
             return drm.transactionCounter;
         }
 
@@ -292,38 +293,38 @@ public abstract class TestARIESStudentRunnerBase {
         @SuppressWarnings("unchecked")
         protected Map<Long, Long> getDirtyPageTable(RecoveryManager recoveryManager) throws Exception {
             DelegatedRecoveryManager drm = limited ? ((LimitedRecoveryManager) recoveryManager).inner : ((
-                                               DelegatedRecoveryManager) recoveryManager);
+                    DelegatedRecoveryManager) recoveryManager);
             return (Map<Long, Long>) recoveryManagerClass.getDeclaredField("dirtyPageTable").get(drm.inner);
         }
 
         @Override
         @SuppressWarnings("unchecked")
         protected Map<Long, TransactionTableEntry> getTransactionTable(RecoveryManager recoveryManager)
-        throws Exception {
+                throws Exception {
             DelegatedRecoveryManager drm = limited ? ((LimitedRecoveryManager) recoveryManager).inner : ((
-                                               DelegatedRecoveryManager) recoveryManager);
+                    DelegatedRecoveryManager) recoveryManager);
             return (Map<Long, TransactionTableEntry>)
-                   recoveryManagerClass.getDeclaredField("transactionTable").get(drm.inner);
+                    recoveryManagerClass.getDeclaredField("transactionTable").get(drm.inner);
         }
 
         @Override
         protected void runAnalysis(RecoveryManager recoveryManager) throws Exception {
             DelegatedRecoveryManager drm = limited ? ((LimitedRecoveryManager) recoveryManager).inner : ((
-                                               DelegatedRecoveryManager) recoveryManager);
+                    DelegatedRecoveryManager) recoveryManager);
             recoveryManagerClass.getDeclaredMethod("restartAnalysis").invoke(drm.inner);
         }
 
         @Override
         protected void runRedo(RecoveryManager recoveryManager) throws Exception {
             DelegatedRecoveryManager drm = limited ? ((LimitedRecoveryManager) recoveryManager).inner : ((
-                                               DelegatedRecoveryManager) recoveryManager);
+                    DelegatedRecoveryManager) recoveryManager);
             recoveryManagerClass.getDeclaredMethod("restartRedo").invoke(drm.inner);
         }
 
         @Override
         protected void runUndo(RecoveryManager recoveryManager) throws Exception {
             DelegatedRecoveryManager drm = limited ? ((LimitedRecoveryManager) recoveryManager).inner : ((
-                                               DelegatedRecoveryManager) recoveryManager);
+                    DelegatedRecoveryManager) recoveryManager);
             recoveryManagerClass.getDeclaredMethod("restartUndo").invoke(drm.inner);
         }
     }
@@ -441,12 +442,12 @@ public abstract class TestARIESStudentRunnerBase {
                                  Constructor<? extends RecoveryManager> recoveryManagerConstructor) throws Exception {
             this.recoveryManagerClass = recoveryManagerClass;
             this.inner = recoveryManagerConstructor.newInstance(
-                             new DummyLockContext(new Pair<>("database", 0L)),
-                             (Function<Long, Transaction>) DummyTransaction::create,
-                             (Consumer<Long>) t -> transactionCounter = t,
-                             (Supplier<Long>) () -> transactionCounter,
-                             true
-                         );
+                    new DummyLockContext(new Pair<>("database", 0L)),
+                    (Function<Long, Transaction>) DummyTransaction::create,
+                    (Consumer<Long>) t -> transactionCounter = t,
+                    (Supplier<Long>) () -> transactionCounter,
+                    true
+            );
         }
 
         @Override
@@ -518,7 +519,7 @@ public abstract class TestARIESStudentRunnerBase {
                 Map<Long, TransactionTableEntry> transactionTable = (Map<Long, TransactionTableEntry>)
                         recoveryManagerClass.getDeclaredField("transactionTable").get(inner);
                 Map<Long, Long> dirtyPageTable = (Map<Long, Long>)
-                                                 recoveryManagerClass.getDeclaredField("dirtyPageTable").get(inner);
+                        recoveryManagerClass.getDeclaredField("dirtyPageTable").get(inner);
                 transactionTable.get(transNum).touchedPages.add(pageNum);
                 dirtyPageTable.remove(pageNum);
             } catch (Exception e) {

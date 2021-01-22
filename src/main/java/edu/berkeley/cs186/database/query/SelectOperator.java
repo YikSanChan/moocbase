@@ -1,14 +1,14 @@
 package edu.berkeley.cs186.database.query;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
 import edu.berkeley.cs186.database.common.PredicateOperator;
 import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.table.MarkerRecord;
 import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.Schema;
 import edu.berkeley.cs186.database.table.stats.TableStats;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 class SelectOperator extends QueryOperator {
     private int columnIndex;
@@ -53,9 +53,9 @@ class SelectOperator extends QueryOperator {
     @Override
     public String str() {
         return "type: " + this.getType() + " (cost: " + this.getIOCost() + ")" +
-               "\ncolumn: " + this.columnName +
-               "\noperator: " + this.operator +
-               "\nvalue: " + this.value;
+                "\ncolumn: " + this.columnName +
+                "\noperator: " + this.operator +
+                "\nvalue: " + this.value;
     }
 
     /**
@@ -67,8 +67,8 @@ class SelectOperator extends QueryOperator {
     public TableStats estimateStats() {
         TableStats stats = this.getSource().getStats();
         return stats.copyWithPredicate(this.columnIndex,
-                                       this.operator,
-                                       this.value);
+                this.operator,
+                this.value);
     }
 
     @Override
@@ -77,7 +77,9 @@ class SelectOperator extends QueryOperator {
     }
 
     @Override
-    public Iterator<Record> iterator() { return new SelectIterator(); }
+    public Iterator<Record> iterator() {
+        return new SelectIterator();
+    }
 
     /**
      * An implementation of Iterator that provides an iterator interface for this operator.
@@ -110,50 +112,50 @@ class SelectOperator extends QueryOperator {
                     return true;
                 }
                 switch (SelectOperator.this.operator) {
-                case EQUALS:
-                    if (r.getValues().get(SelectOperator.this.columnIndex).equals(value)) {
-                        this.nextRecord = r;
-                        return true;
-                    }
-                    break;
-                case NOT_EQUALS:
-                    if (!r.getValues().get(SelectOperator.this.columnIndex).equals(value)) {
-                        this.nextRecord = r;
-                        return true;
-                    }
-                    break;
-                case LESS_THAN:
-                    if (r.getValues().get(SelectOperator.this.columnIndex).compareTo(value) < 0) {
-                        this.nextRecord = r;
-                        return true;
-                    }
-                    break;
-                case LESS_THAN_EQUALS:
-                    if (r.getValues().get(SelectOperator.this.columnIndex).compareTo(value) < 0) {
-                        this.nextRecord = r;
-                        return true;
-                    } else if (r.getValues().get(SelectOperator.this.columnIndex).compareTo(value) == 0) {
-                        this.nextRecord = r;
-                        return true;
-                    }
-                    break;
-                case GREATER_THAN:
-                    if (r.getValues().get(SelectOperator.this.columnIndex).compareTo(value) > 0) {
-                        this.nextRecord = r;
-                        return true;
-                    }
-                    break;
-                case GREATER_THAN_EQUALS:
-                    if (r.getValues().get(SelectOperator.this.columnIndex).compareTo(value) > 0) {
-                        this.nextRecord = r;
-                        return true;
-                    } else if (r.getValues().get(SelectOperator.this.columnIndex).compareTo(value) == 0) {
-                        this.nextRecord = r;
-                        return true;
-                    }
-                    break;
-                default:
-                    break;
+                    case EQUALS:
+                        if (r.getValues().get(SelectOperator.this.columnIndex).equals(value)) {
+                            this.nextRecord = r;
+                            return true;
+                        }
+                        break;
+                    case NOT_EQUALS:
+                        if (!r.getValues().get(SelectOperator.this.columnIndex).equals(value)) {
+                            this.nextRecord = r;
+                            return true;
+                        }
+                        break;
+                    case LESS_THAN:
+                        if (r.getValues().get(SelectOperator.this.columnIndex).compareTo(value) < 0) {
+                            this.nextRecord = r;
+                            return true;
+                        }
+                        break;
+                    case LESS_THAN_EQUALS:
+                        if (r.getValues().get(SelectOperator.this.columnIndex).compareTo(value) < 0) {
+                            this.nextRecord = r;
+                            return true;
+                        } else if (r.getValues().get(SelectOperator.this.columnIndex).compareTo(value) == 0) {
+                            this.nextRecord = r;
+                            return true;
+                        }
+                        break;
+                    case GREATER_THAN:
+                        if (r.getValues().get(SelectOperator.this.columnIndex).compareTo(value) > 0) {
+                            this.nextRecord = r;
+                            return true;
+                        }
+                        break;
+                    case GREATER_THAN_EQUALS:
+                        if (r.getValues().get(SelectOperator.this.columnIndex).compareTo(value) > 0) {
+                            this.nextRecord = r;
+                            return true;
+                        } else if (r.getValues().get(SelectOperator.this.columnIndex).compareTo(value) == 0) {
+                            this.nextRecord = r;
+                            return true;
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
             return false;

@@ -86,22 +86,22 @@ public class Type {
         int ordinal = buf.getInt();
         int sizeInBytes = buf.getInt();
         switch (TypeId.fromInt(ordinal)) {
-        case BOOL:
-            assert(sizeInBytes == 1);
-            return Type.boolType();
-        case INT:
-            assert(sizeInBytes == Integer.BYTES);
-            return Type.intType();
-        case FLOAT:
-            assert(sizeInBytes == Float.BYTES);
-            return Type.floatType();
-        case STRING:
-            return Type.stringType(sizeInBytes);
-        case LONG:
-            assert(sizeInBytes == Long.BYTES);
-            return Type.longType();
-        default:
-            throw new RuntimeException("unreachable");
+            case BOOL:
+                assert (sizeInBytes == 1);
+                return Type.boolType();
+            case INT:
+                assert (sizeInBytes == Integer.BYTES);
+                return Type.intType();
+            case FLOAT:
+                assert (sizeInBytes == Float.BYTES);
+                return Type.floatType();
+            case STRING:
+                return Type.stringType(sizeInBytes);
+            case LONG:
+                assert (sizeInBytes == Long.BYTES);
+                return Type.longType();
+            default:
+                throw new RuntimeException("unreachable");
         }
     }
 

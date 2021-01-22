@@ -15,7 +15,7 @@ public class StringDataBox extends DataBox {
     public StringDataBox(String s, int m) {
         if (m <= 0) {
             String msg = String.format("Cannot construct a %d-byte string. " +
-                                       "Strings must be at least one byte.", m);
+                    "Strings must be at least one byte.", m);
             throw new DataBoxException(msg);
         }
 
@@ -24,7 +24,7 @@ public class StringDataBox extends DataBox {
         } else {
             this.s = s + new String(new char[m - s.length()]);
         }
-        assert(this.s.length() == m);
+        assert (this.s.length() == m);
     }
 
     @Override
@@ -39,8 +39,8 @@ public class StringDataBox extends DataBox {
 
     @Override
     public String toString() {
-    return s;
-  }
+        return s;
+    }
 
     @Override
     public byte[] toBytes() {
@@ -71,7 +71,7 @@ public class StringDataBox extends DataBox {
     public int compareTo(DataBox d) {
         if (!(d instanceof StringDataBox)) {
             String err = String.format("Invalid comparison between %s and %s.",
-                                       toString(), d.toString());
+                    toString(), d.toString());
             throw new DataBoxException(err);
         }
         StringDataBox s = (StringDataBox) d;

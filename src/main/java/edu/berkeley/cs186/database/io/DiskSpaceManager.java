@@ -24,7 +24,6 @@ public interface DiskSpaceManager extends AutoCloseable {
 
     /**
      * Releases a partition from use.
-
      * @param partNum partition number to be released
      */
     void freePart(int partNum);

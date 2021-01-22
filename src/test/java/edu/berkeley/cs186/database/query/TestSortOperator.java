@@ -1,24 +1,26 @@
 package edu.berkeley.cs186.database.query;
 
-import edu.berkeley.cs186.database.*;
-import edu.berkeley.cs186.database.categories.*;
-import edu.berkeley.cs186.database.common.Pair;
+import edu.berkeley.cs186.database.Database;
+import edu.berkeley.cs186.database.TestUtils;
+import edu.berkeley.cs186.database.TimeoutScaling;
+import edu.berkeley.cs186.database.Transaction;
+import edu.berkeley.cs186.database.categories.Proj3Part1Tests;
+import edu.berkeley.cs186.database.categories.Proj3Tests;
+import edu.berkeley.cs186.database.categories.PublicTests;
 import edu.berkeley.cs186.database.concurrency.DummyLockContext;
 import edu.berkeley.cs186.database.io.DiskSpaceManager;
 import edu.berkeley.cs186.database.memory.Page;
-import org.junit.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-
 import edu.berkeley.cs186.database.table.Record;
-
+import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -37,7 +39,7 @@ public class TestSortOperator {
     // 2 second max per method tested.
     @Rule
     public TestRule globalTimeout = new DisableOnDebug(Timeout.millis((long) (
-                5000 * TimeoutScaling.factor)));
+            5000 * TimeoutScaling.factor)));
 
     @Ignore
     public static class SortRecordComparator implements Comparator<Record> {
@@ -46,10 +48,11 @@ public class TestSortOperator {
         private SortRecordComparator(int columnIndex) {
             this.columnIndex = columnIndex;
         }
+
         @Override
         public int compare(Record o1, Record o2) {
             return o1.getValues().get(this.columnIndex).compareTo(
-                       o2.getValues().get(this.columnIndex));
+                    o2.getValues().get(this.columnIndex));
         }
     }
 
@@ -86,7 +89,7 @@ public class TestSortOperator {
         long IOs = newIOs - numIOs;
 
         assertTrue(IOs + " I/Os not between " + minIOs + " and " + maxIOs + message,
-                   minIOs <= IOs && IOs <= maxIOs);
+                minIOs <= IOs && IOs <= maxIOs);
         numIOs = newIOs;
     }
 
@@ -97,6 +100,7 @@ public class TestSortOperator {
     private void checkIOs(long minIOs, long maxIOs) {
         checkIOs(null, minIOs, maxIOs);
     }
+
     private void checkIOs(long numIOs) {
         checkIOs(null, numIOs, numIOs);
     }
@@ -127,7 +131,7 @@ public class TestSortOperator {
     @Test
     @Category(PublicTests.class)
     public void testSortRun() {
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             transaction.createTable(TestUtils.createSchemaWithAllTypes(), "table");
             List<Record> records = new ArrayList<>();
             List<Record> recordsToShuffle = new ArrayList<>();
@@ -142,7 +146,7 @@ public class TestSortOperator {
             startCountIOs();
 
             SortOperator s = new SortOperator(transaction.getTransactionContext(), "table",
-                                              new SortRecordComparator(1));
+                    new SortRecordComparator(1));
             checkIOs(0);
 
             SortOperator.Run r = s.createRun();
@@ -169,7 +173,7 @@ public class TestSortOperator {
     @Test
     @Category(PublicTests.class)
     public void testMergeSortedRuns() {
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             transaction.createTable(TestUtils.createSchemaWithAllTypes(), "table");
             List<Record> records = new ArrayList<>();
 
@@ -177,7 +181,7 @@ public class TestSortOperator {
             startCountIOs();
 
             SortOperator s = new SortOperator(transaction.getTransactionContext(), "table",
-                                              new SortRecordComparator(1));
+                    new SortRecordComparator(1));
             checkIOs(0);
             SortOperator.Run r1 = s.createRun();
             SortOperator.Run r2 = s.createRun();
@@ -216,7 +220,7 @@ public class TestSortOperator {
     @Test
     @Category(PublicTests.class)
     public void testMergePass() {
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             transaction.createTable(TestUtils.createSchemaWithAllTypes(), "table");
             List<Record> records1 = new ArrayList<>();
             List<Record> records2 = new ArrayList<>();
@@ -225,7 +229,7 @@ public class TestSortOperator {
             startCountIOs();
 
             SortOperator s = new SortOperator(transaction.getTransactionContext(), "table",
-                                              new SortRecordComparator(1));
+                    new SortRecordComparator(1));
             checkIOs(0);
 
             SortOperator.Run r1 = s.createRun();
@@ -286,7 +290,7 @@ public class TestSortOperator {
     @Test
     @Category(PublicTests.class)
     public void testSortNoChange() {
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             transaction.createTable(TestUtils.createSchemaWithAllTypes(), "table");
             Record[] records = new Record[400 * 3];
             for (int i = 0; i < 400 * 3; i++) {
@@ -299,7 +303,7 @@ public class TestSortOperator {
             startCountIOs();
 
             SortOperator s = new SortOperator(transaction.getTransactionContext(), "table",
-                                              new SortRecordComparator(1));
+                    new SortRecordComparator(1));
             checkIOs(0);
 
             String sortedTableName = s.sort();
@@ -320,7 +324,7 @@ public class TestSortOperator {
     @Test
     @Category(PublicTests.class)
     public void testSortBackwards() {
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             transaction.createTable(TestUtils.createSchemaWithAllTypes(), "table");
             Record[] records = new Record[400 * 3];
             for (int i = 400 * 3; i > 0; i--) {
@@ -333,7 +337,7 @@ public class TestSortOperator {
             startCountIOs();
 
             SortOperator s = new SortOperator(transaction.getTransactionContext(), "table",
-                                              new SortRecordComparator(1));
+                    new SortRecordComparator(1));
             checkIOs(0);
 
             String sortedTableName = s.sort();
@@ -354,7 +358,7 @@ public class TestSortOperator {
     @Test
     @Category(PublicTests.class)
     public void testSortRandomOrder() {
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             transaction.createTable(TestUtils.createSchemaWithAllTypes(), "table");
             List<Record> records = new ArrayList<>();
             List<Record> recordsToShuffle = new ArrayList<>();
@@ -372,7 +376,7 @@ public class TestSortOperator {
             startCountIOs();
 
             SortOperator s = new SortOperator(transaction.getTransactionContext(), "table",
-                                              new SortRecordComparator(1));
+                    new SortRecordComparator(1));
             checkIOs(0);
 
             String sortedTableName = s.sort();

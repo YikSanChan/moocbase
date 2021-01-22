@@ -1,12 +1,12 @@
 package edu.berkeley.cs186.database.table.stats;
 
-import java.util.Iterator;
-
 import edu.berkeley.cs186.database.common.PredicateOperator;
 import edu.berkeley.cs186.database.databox.DataBox;
-import edu.berkeley.cs186.database.table.Table;
-import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.databox.TypeId;
+import edu.berkeley.cs186.database.table.Record;
+import edu.berkeley.cs186.database.table.Table;
+
+import java.util.Iterator;
 
 /**
  * A histogram maintains approximate statistics about a (potentially large) set
@@ -91,10 +91,18 @@ public class Histogram {
 
     private float quantization(DataBox d) {
         switch (d.type().getTypeId()) {
-        case BOOL:   { return (d.getBool()) ? 1.0f : 0.0f; }
-        case INT:    { return (float) d.getInt(); }
-        case FLOAT:  { return d.getFloat(); }
-        case STRING: { return (float) (d.getString().hashCode()); }
+            case BOOL: {
+                return (d.getBool()) ? 1.0f : 0.0f;
+            }
+            case INT: {
+                return (float) d.getInt();
+            }
+            case FLOAT: {
+                return d.getFloat();
+            }
+            case STRING: {
+                return (float) (d.getString().hashCode());
+            }
         }
 
         return 0f;
@@ -154,11 +162,14 @@ public class Histogram {
     }
 
     private int bucketIndex(float v) {
-        if (Math.abs(v - maxValue) < 0.00001) { return buckets.length - 1; }
+        if (Math.abs(v - maxValue) < 0.00001) {
+            return buckets.length - 1;
+        }
         return (int) Math.floor((v - minValue) / width);
     }
 
     //Accessor Methods//////////////////////////////////////////////////////////////
+
     /** Return an estimate of the number of distinct values in the histogram. */
     public int getNumDistinct() {
         int sum = 0;
@@ -223,7 +234,7 @@ public class Histogram {
      * Counts are always an integer and round to the nearest value.
      */
     public float[] filter(PredicateOperator predicate, DataBox value) {
-        float qvalue =  quantization(value);
+        float qvalue = quantization(value);
 
         //do not handle non equality predicates on strings
         if (value.type().getTypeId() == TypeId.STRING &&
@@ -313,9 +324,9 @@ public class Histogram {
     }
 
     /**
-      *  Given a quantized value, set the bucket that contains the value by 1-1/distinctCount,
-      *  and set all other values to 1.
-      */
+     *  Given a quantized value, set the bucket that contains the value by 1-1/distinctCount,
+     *  and set all other values to 1.
+     */
     private float[] allNotEquality(float qvalue) {
         float[] result = new float[this.buckets.length];
 
@@ -360,9 +371,9 @@ public class Histogram {
     }
 
     /**
-      *  Given a quantized value, set the bucket that contains the value by (q-start)/width,
-      *  and set all other buckets to 1 if lower and 0 if higher.
-      */
+     *  Given a quantized value, set the bucket that contains the value by (q-start)/width,
+     *  and set all other buckets to 1 if lower and 0 if higher.
+     */
     private float[] allLessThan(float qvalue) {
         float[] result = new float[this.buckets.length];
 

@@ -1,38 +1,37 @@
 package edu.berkeley.cs186.database.index;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-
 import edu.berkeley.cs186.database.TimeoutScaling;
+import edu.berkeley.cs186.database.categories.Proj2Tests;
+import edu.berkeley.cs186.database.categories.PublicTests;
+import edu.berkeley.cs186.database.categories.SystemTests;
+import edu.berkeley.cs186.database.common.Pair;
 import edu.berkeley.cs186.database.concurrency.DummyLockContext;
 import edu.berkeley.cs186.database.concurrency.LockContext;
+import edu.berkeley.cs186.database.databox.DataBox;
+import edu.berkeley.cs186.database.databox.IntDataBox;
+import edu.berkeley.cs186.database.databox.Type;
 import edu.berkeley.cs186.database.io.DiskSpaceManager;
 import edu.berkeley.cs186.database.io.MemoryDiskSpaceManager;
 import edu.berkeley.cs186.database.memory.BufferManager;
 import edu.berkeley.cs186.database.memory.BufferManagerImpl;
 import edu.berkeley.cs186.database.memory.ClockEvictionPolicy;
 import edu.berkeley.cs186.database.recovery.DummyRecoveryManager;
-import org.junit.*;
+import edu.berkeley.cs186.database.table.RecordId;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 
-import edu.berkeley.cs186.database.categories.*;
-import edu.berkeley.cs186.database.common.Pair;
-import edu.berkeley.cs186.database.databox.DataBox;
-import edu.berkeley.cs186.database.databox.IntDataBox;
-import edu.berkeley.cs186.database.databox.Type;
-import edu.berkeley.cs186.database.table.RecordId;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.Assert.*;
 
 @Category(Proj2Tests.class)
 public class TestLeafNode {
@@ -43,7 +42,7 @@ public class TestLeafNode {
     // 1 second max per method tested.
     @Rule
     public TestRule globalTimeout = new DisableOnDebug(Timeout.millis((long) (
-                1000 * TimeoutScaling.factor)));
+            1000 * TimeoutScaling.factor)));
 
     private static DataBox d0 = new IntDataBox(0);
     private static DataBox d1 = new IntDataBox(1);
@@ -75,7 +74,7 @@ public class TestLeafNode {
     // Helpers /////////////////////////////////////////////////////////////////
     private void setBPlusTreeMetadata(Type keySchema, int order) {
         this.metadata = new BPlusTreeMetadata("test", "col", keySchema, order,
-                                              0, DiskSpaceManager.INVALID_PAGE_NUM, -1);
+                0, DiskSpaceManager.INVALID_PAGE_NUM, -1);
     }
 
     private LeafNode getEmptyLeaf(Optional<Long> rightSibling) {

@@ -4,17 +4,17 @@ package edu.berkeley.cs186.database.cli.parser;
 
 public
 class ASTSelectStatement extends SimpleNode {
-  public ASTSelectStatement(int id) {
-    super(id);
-  }
+    public ASTSelectStatement(int id) {
+        super(id);
+    }
 
-  public ASTSelectStatement(MoocParser p, int id) {
-    super(p, id);
-  }
+    public ASTSelectStatement(MoocParser p, int id) {
+        super(p, id);
+    }
 
-  /** Accept the visitor. **/
-  public void jjtAccept(MoocParserVisitor visitor, Object data) {
-    visitor.visit(this, data);
-  }
+    /** Accept the visitor. **/
+    public void jjtAccept(MoocParserVisitor visitor, Object data) {
+        visitor.visit(this, data);
+    }
 }
 /* JavaCC - OriginalChecksum=89cbdac9570adc6840f1d54dbbe96b1e (do not edit this line) */

@@ -1,18 +1,18 @@
 package edu.berkeley.cs186.database.cli.visitor;
 
+import edu.berkeley.cs186.database.Transaction;
+import edu.berkeley.cs186.database.cli.PrettyPrinter;
+import edu.berkeley.cs186.database.cli.parser.*;
+import edu.berkeley.cs186.database.common.PredicateOperator;
+import edu.berkeley.cs186.database.databox.DataBox;
+import edu.berkeley.cs186.database.query.QueryPlan;
+import edu.berkeley.cs186.database.table.Record;
+import edu.berkeley.cs186.database.table.Schema;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-
-import edu.berkeley.cs186.database.Transaction;
-import edu.berkeley.cs186.database.common.PredicateOperator;
-import edu.berkeley.cs186.database.databox.DataBox;
-import edu.berkeley.cs186.database.cli.PrettyPrinter;
-import edu.berkeley.cs186.database.cli.parser.*;
-import edu.berkeley.cs186.database.query.QueryPlan;
-import edu.berkeley.cs186.database.table.Record;
-import edu.berkeley.cs186.database.table.Schema;
 
 public class SelectStatementVisitor extends StatementVisitor {
     List<String> selectColumns = new ArrayList<>();
@@ -36,29 +36,29 @@ public class SelectStatementVisitor extends StatementVisitor {
     @Override
     public Optional<QueryPlan> getQueryPlan(Transaction transaction) {
         QueryPlan query = transaction.query(tableNames.get(0), tableAliases.get(0));
-        for(int i = 1; i < tableNames.size(); i++) {
+        for (int i = 1; i < tableNames.size(); i++) {
             query.join(
-                tableNames.get(i),
-                tableAliases.get(i),
-                joinedTableLeftCols.get(i-1),
-                joinedTableRightCols.get(i-1)
+                    tableNames.get(i),
+                    tableAliases.get(i),
+                    joinedTableLeftCols.get(i - 1),
+                    joinedTableRightCols.get(i - 1)
             );
         }
-        for(int i = 0; i < predicateColumns.size(); i++) {
+        for (int i = 0; i < predicateColumns.size(); i++) {
             query.select(
-                predicateColumns.get(i),
-                predicateOperators.get(i),
-                predicateValues.get(i)
+                    predicateColumns.get(i),
+                    predicateOperators.get(i),
+                    predicateValues.get(i)
             );
         }
-        if(!(selectColumns.size() == 1 && selectColumns.get(0) == "*")) {
+        if (!(selectColumns.size() == 1 && selectColumns.get(0) == "*")) {
             query.project(selectColumns);
-        } else if(selectColumns.get(0) == "*") {
+        } else if (selectColumns.get(0) == "*") {
             selectColumns = new ArrayList<>();
-            for(String alias: tableAliases) {
+            for (String alias : tableAliases) {
                 Schema s = transaction.getSchema(alias);
-                for(String colName: s.getFieldNames()) {
-                    selectColumns.add((tableAliases.size() > 1 ? alias + ".": "") + colName);
+                for (String colName : s.getFieldNames()) {
+                    selectColumns.add((tableAliases.size() > 1 ? alias + "." : "") + colName);
                 }
             }
             query.project(selectColumns);
@@ -70,9 +70,9 @@ public class SelectStatementVisitor extends StatementVisitor {
     public void visit(ASTColumnName node, Object data) {
         // :')
         System.out.println(
-            "WARNING: GROUP BY clauses aren't yet supported  by the CLI. "
-            + "Bug the TAs about the absence of it if you want to see it added "
-            + "sooner!"
+                "WARNING: GROUP BY clauses aren't yet supported  by the CLI. "
+                        + "Bug the TAs about the absence of it if you want to see it added "
+                        + "sooner!"
         );
         this.groupByColumn = (String) node.jjtGetValue();
     }
@@ -94,7 +94,7 @@ public class SelectStatementVisitor extends StatementVisitor {
     public void visit(ASTAliasedTableName node, Object data) {
         String[] names = (String[]) node.jjtGetValue();
         this.tableNames.add(names[0]);
-        if(names[1] != null) this.tableAliases.add(names[1]);
+        if (names[1] != null) this.tableAliases.add(names[1]);
         else this.tableAliases.add(names[0]);
     }
 
@@ -124,11 +124,11 @@ public class SelectStatementVisitor extends StatementVisitor {
 
     public void prettyPrint() {
         System.out.println("SELECT");
-        for(String c: selectColumns) {
+        for (String c : selectColumns) {
             System.out.println("   " + c);
         }
         System.out.println("FROM");
-        for(int i = 0; i < tableNames.size(); i++) {
+        for (int i = 0; i < tableNames.size(); i++) {
             String name = tableNames.get(i);
             String alias = tableAliases.get(i);
             System.out.print("   " + name);
@@ -137,27 +137,27 @@ public class SelectStatementVisitor extends StatementVisitor {
             }
             if (i > 0) {
                 System.out.print(" ON ");
-                System.out.print(joinedTableLeftCols.get(i-1));
+                System.out.print(joinedTableLeftCols.get(i - 1));
                 System.out.print(" = ");
-                System.out.print(joinedTableRightCols.get(i-1));
+                System.out.print(joinedTableRightCols.get(i - 1));
             }
             System.out.println();
         }
-        if(predicateColumns.size() > 0) {
+        if (predicateColumns.size() > 0) {
             System.out.println("WHERE");
-            for(int i = 0; i < predicateColumns.size(); i++) {
+            for (int i = 0; i < predicateColumns.size(); i++) {
                 System.out.printf(
-                    "   %s %s %s\n",
-                    predicateColumns.get(i),
-                    predicateOperators.get(i),
-                    predicateValues.get(i)
+                        "   %s %s %s\n",
+                        predicateColumns.get(i),
+                        predicateOperators.get(i),
+                        predicateValues.get(i)
                 );
             }
         }
-        if(groupByColumn != null) {
+        if (groupByColumn != null) {
             System.out.println("GROUP BY " + groupByColumn);
         }
-        if(limit != -1) {
+        if (limit != -1) {
             System.out.println("LIMIT " + limit);
         }
     }

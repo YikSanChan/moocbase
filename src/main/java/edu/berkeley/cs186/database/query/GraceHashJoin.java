@@ -3,12 +3,15 @@ package edu.berkeley.cs186.database.query;
 import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.common.HashFunc;
 import edu.berkeley.cs186.database.common.Pair;
-import edu.berkeley.cs186.database.databox.*;
+import edu.berkeley.cs186.database.databox.DataBox;
+import edu.berkeley.cs186.database.databox.IntDataBox;
 import edu.berkeley.cs186.database.memory.HashPartition;
 import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.Schema;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 
 public class GraceHashJoin {
@@ -98,8 +101,8 @@ public class GraceHashJoin {
             probeFirst = true; // When we join the records, the record used to probe will be on the left
         } else {
             throw new IllegalArgumentException(
-                "Neither the left nor the right records in this partition " +
-                "fit in B-2 pages of memory."
+                    "Neither the left nor the right records in this partition " +
+                            "fit in B-2 pages of memory."
             );
         }
         if (!materializeJoin) {
@@ -147,7 +150,7 @@ public class GraceHashJoin {
         // Accumulate all the records from the join here
         ArrayList<Record> joinedRecords = new ArrayList<>();
 
-        for (HashPartition partition: partitions) {
+        for (HashPartition partition : partitions) {
             // TODO(proj3_part1): implement the rest of grace hash join in this for loop
             //
             // If you can run the build and probe phase on a partition you should
@@ -187,6 +190,7 @@ public class GraceHashJoin {
     // Feel free to add your own helper methods here if you wish to do so
 
     // Provided Helpers ////////////////////////////////////////////////////////
+
     /**
      * Helper method to create a joined record from a record of the left relation
      * and a record of the right relation.

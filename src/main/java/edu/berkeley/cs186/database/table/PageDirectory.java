@@ -1,14 +1,12 @@
 package edu.berkeley.cs186.database.table;
 
+import edu.berkeley.cs186.database.common.Buffer;
 import edu.berkeley.cs186.database.common.ByteBuffer;
 import edu.berkeley.cs186.database.common.iterator.BacktrackingIterable;
 import edu.berkeley.cs186.database.common.iterator.BacktrackingIterator;
-import edu.berkeley.cs186.database.common.Buffer;
 import edu.berkeley.cs186.database.common.iterator.ConcatBacktrackingIterator;
 import edu.berkeley.cs186.database.common.iterator.IndexBacktrackingIterator;
 import edu.berkeley.cs186.database.concurrency.LockContext;
-import edu.berkeley.cs186.database.concurrency.LockType;
-import edu.berkeley.cs186.database.concurrency.LockUtil;
 import edu.berkeley.cs186.database.io.DiskSpaceManager;
 import edu.berkeley.cs186.database.io.PageException;
 import edu.berkeley.cs186.database.memory.BufferManager;
@@ -349,7 +347,7 @@ public class PageDirectory implements HeapFile {
                 if (unusedSlot != -1) {
                     Page page = bufferManager.fetchNewPage(lockContext, partNum, false);
                     DataPageEntry dpe = new DataPageEntry(page.getPageNum(),
-                                                          (short) (EFFECTIVE_PAGE_SIZE - emptyPageMetadataSize - requiredSpace));
+                            (short) (EFFECTIVE_PAGE_SIZE - emptyPageMetadataSize - requiredSpace));
 
                     b.position(HEADER_HEADER_SIZE + DataPageEntry.SIZE * unusedSlot);
                     dpe.toBytes(b);

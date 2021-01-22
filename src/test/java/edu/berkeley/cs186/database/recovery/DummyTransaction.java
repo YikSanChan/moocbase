@@ -50,10 +50,12 @@ class DummyTransaction extends AbstractTransaction {
     }
 
     @Override
-    protected void startCommit() {}
+    protected void startCommit() {
+    }
 
     @Override
-    protected void startRollback() {}
+    protected void startRollback() {
+    }
 
     @Override
     public void cleanup() {
@@ -67,19 +69,24 @@ class DummyTransaction extends AbstractTransaction {
     }
 
     @Override
-    public void createTable(Schema s, String tableName) {}
+    public void createTable(Schema s, String tableName) {
+    }
 
     @Override
-    public void dropTable(String tableName) {}
+    public void dropTable(String tableName) {
+    }
 
     @Override
-    public void dropAllTables() {}
+    public void dropAllTables() {
+    }
 
     @Override
-    public void createIndex(String tableName, String columnName, boolean bulkLoad) {}
+    public void createIndex(String tableName, String columnName, boolean bulkLoad) {
+    }
 
     @Override
-    public void dropIndex(String tableName, String columnName) {}
+    public void dropIndex(String tableName, String columnName) {
+    }
 
     @Override
     public Table getTableInfo() {
@@ -102,27 +109,34 @@ class DummyTransaction extends AbstractTransaction {
     }
 
     @Override
-    public void insert(String tableName, List<DataBox> values) {}
+    public void insert(String tableName, List<DataBox> values) {
+    }
 
     @Override
-    public void update(String tableName, String targetColumnName, UnaryOperator<DataBox> targetValue) {}
+    public void update(String tableName, String targetColumnName, UnaryOperator<DataBox> targetValue) {
+    }
 
     @Override
     public void update(String tableName, String targetColumnName, UnaryOperator<DataBox> targetValue,
-                       String predColumnName, PredicateOperator predOperator, DataBox predValue) {}
+                       String predColumnName, PredicateOperator predOperator, DataBox predValue) {
+    }
 
     @Override
     public void delete(String tableName, String predColumnName, PredicateOperator predOperator,
-                       DataBox predValue) {}
+                       DataBox predValue) {
+    }
 
     @Override
-    public void savepoint(String savepointName) {}
+    public void savepoint(String savepointName) {
+    }
 
     @Override
-    public void rollbackToSavepoint(String savepointName) {}
+    public void rollbackToSavepoint(String savepointName) {
+    }
 
     @Override
-    public void releaseSavepoint(String savepointName) {}
+    public void releaseSavepoint(String savepointName) {
+    }
 
     @Override
     public Schema getSchema(String tableName) {
@@ -186,7 +200,8 @@ class DummyTransaction extends AbstractTransaction {
         }
 
         @Override
-        public void close() {}
+        public void close() {
+        }
 
         @Override
         public String createTempTable(Schema schema) {
@@ -194,13 +209,16 @@ class DummyTransaction extends AbstractTransaction {
         }
 
         @Override
-        public void deleteAllTempTables() {}
+        public void deleteAllTempTables() {
+        }
 
         @Override
-        public void setAliasMap(Map<String, String> aliasMap) {}
+        public void setAliasMap(Map<String, String> aliasMap) {
+        }
 
         @Override
-        public void clearAliasMap() {}
+        public void clearAliasMap() {
+        }
 
         @Override
         public boolean indexExists(String tableName, String columnName) {
@@ -208,7 +226,8 @@ class DummyTransaction extends AbstractTransaction {
         }
 
         @Override
-        public void updateIndexMetadata(BPlusTreeMetadata metadata) {}
+        public void updateIndexMetadata(BPlusTreeMetadata metadata) {
+        }
 
         @Override
         public Iterator<Record> sortedScan(String tableName, String columnName) {
@@ -237,7 +256,7 @@ class DummyTransaction extends AbstractTransaction {
 
         @Override
         public BacktrackingIterator<Record> getBlockIterator(String tableName, Iterator<Page> block,
-                int maxPages) {
+                                                             int maxPages) {
             return null;
         }
 
@@ -269,11 +288,13 @@ class DummyTransaction extends AbstractTransaction {
         @Override
         public void runUpdateRecordWhere(String tableName, String targetColumnName,
                                          UnaryOperator<DataBox> targetValue, String predColumnName, PredicateOperator predOperator,
-                                         DataBox predValue) {}
+                                         DataBox predValue) {
+        }
 
         @Override
         public void runDeleteRecordWhere(String tableName, String predColumnName,
-                                         PredicateOperator predOperator, DataBox predValue) {}
+                                         PredicateOperator predOperator, DataBox predValue) {
+        }
 
         @Override
         public Schema getSchema(String tableName) {

@@ -1,12 +1,12 @@
 package edu.berkeley.cs186.database.cli.visitor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import edu.berkeley.cs186.database.Database;
 import edu.berkeley.cs186.database.Transaction;
 import edu.berkeley.cs186.database.cli.parser.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class MoocParserVisitor extends MoocParserDefaultVisitor {
     private Database database;
@@ -18,8 +18,8 @@ public class MoocParserVisitor extends MoocParserDefaultVisitor {
     }
 
     public Transaction execute(Transaction currTransaction) {
-        for (StatementVisitor visitor: this.statementVisitors) {
-            switch(visitor.getType()) {
+        for (StatementVisitor visitor : this.statementVisitors) {
+            switch (visitor.getType()) {
                 case BEGIN:
                     if (currTransaction != null) {
                         System.out.println("WARNING: Transaction already in progress");
@@ -43,7 +43,7 @@ public class MoocParserVisitor extends MoocParserDefaultVisitor {
                         System.out.println("WARNING: No transaction in progress");
                     } else {
                         Optional<String> savepointName = visitor.getSavepointName();
-                        if(savepointName.isPresent()) {
+                        if (savepointName.isPresent()) {
                             try {
                                 currTransaction.rollbackToSavepoint(savepointName.get());
                             } catch (Exception e) {
@@ -75,7 +75,7 @@ public class MoocParserVisitor extends MoocParserDefaultVisitor {
                             System.out.println("Operation failed.");
                         }
                     }
-                break;
+                    break;
             }
         }
         return currTransaction;

@@ -224,7 +224,7 @@ public class BufferManagerImpl implements BufferManager {
                         byte[] before = Arrays.copyOfRange(contents, start + offset, start + offset + len);
                         byte[] after = Arrays.copyOfRange(buf, start, start + len);
                         long pageLSN = recoveryManager.logPageWrite(transaction.getTransNum(), pageNum, position, before,
-                                       after);
+                                after);
                         this.setPageLSN(pageLSN);
                     }
                 }

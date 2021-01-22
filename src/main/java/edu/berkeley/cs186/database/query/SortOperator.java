@@ -1,15 +1,17 @@
 package edu.berkeley.cs186.database.query;
 
-import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.DatabaseException;
+import edu.berkeley.cs186.database.TransactionContext;
+import edu.berkeley.cs186.database.common.Pair;
 import edu.berkeley.cs186.database.common.iterator.BacktrackingIterator;
 import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.Schema;
-import edu.berkeley.cs186.database.common.Pair;
-import edu.berkeley.cs186.database.memory.Page;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 public class SortOperator {
     private TransactionContext transaction;
@@ -146,7 +148,7 @@ public class SortOperator {
 
         IntermediateRun() {
             this.tempTableName = SortOperator.this.transaction.createTempTable(
-                                     SortOperator.this.operatorSchema);
+                    SortOperator.this.operatorSchema);
         }
 
         @Override

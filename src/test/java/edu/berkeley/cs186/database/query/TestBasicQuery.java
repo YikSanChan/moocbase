@@ -1,30 +1,34 @@
 package edu.berkeley.cs186.database.query;
 
-import edu.berkeley.cs186.database.*;
-import edu.berkeley.cs186.database.categories.*;
+import edu.berkeley.cs186.database.Database;
+import edu.berkeley.cs186.database.TestUtils;
+import edu.berkeley.cs186.database.TimeoutScaling;
+import edu.berkeley.cs186.database.Transaction;
+import edu.berkeley.cs186.database.categories.Proj3Part2Tests;
+import edu.berkeley.cs186.database.categories.Proj3Tests;
+import edu.berkeley.cs186.database.categories.PublicTests;
 import edu.berkeley.cs186.database.common.PredicateOperator;
+import edu.berkeley.cs186.database.databox.BoolDataBox;
+import edu.berkeley.cs186.database.databox.FloatDataBox;
+import edu.berkeley.cs186.database.databox.IntDataBox;
+import edu.berkeley.cs186.database.databox.StringDataBox;
+import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.Schema;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.Iterator;
 
-import edu.berkeley.cs186.database.table.Record;
-import edu.berkeley.cs186.database.databox.IntDataBox;
-import edu.berkeley.cs186.database.databox.StringDataBox;
-import edu.berkeley.cs186.database.databox.FloatDataBox;
-import edu.berkeley.cs186.database.databox.BoolDataBox;
-
-import static org.junit.Assert.*;
-import org.junit.After;
-
-import edu.berkeley.cs186.database.TimeoutScaling;
-import org.junit.rules.DisableOnDebug;
-import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
+import static org.junit.Assert.assertEquals;
 
 @Category({Proj3Tests.class, Proj3Part2Tests.class})
 public class TestBasicQuery {
@@ -40,7 +44,7 @@ public class TestBasicQuery {
     // 1 second max per method tested.
     @Rule
     public TestRule globalTimeout = new DisableOnDebug(Timeout.millis((long) (
-                1000 * TimeoutScaling.factor)));
+            1000 * TimeoutScaling.factor)));
 
     @Before
     public void beforeEach() throws Exception {
@@ -50,7 +54,7 @@ public class TestBasicQuery {
         this.db.setWorkMem(5); // B=5
         this.db.waitSetupFinished();
 
-        try(Transaction t = this.db.beginTransaction()) {
+        try (Transaction t = this.db.beginTransaction()) {
             t.dropAllTables();
 
             Schema schema = TestUtils.createSchemaWithAllTypes();
@@ -66,7 +70,7 @@ public class TestBasicQuery {
     @After
     public void afterEach() {
         this.db.waitAllTransactions();
-        try(Transaction t = this.db.beginTransaction()) {
+        try (Transaction t = this.db.beginTransaction()) {
             t.dropAllTables();
         }
         this.db.close();
@@ -85,7 +89,7 @@ public class TestBasicQuery {
     @Test
     @Category(PublicTests.class)
     public void testProject() {
-        try(Transaction transaction = this.db.beginTransaction()) {
+        try (Transaction transaction = this.db.beginTransaction()) {
             //creates a 10 records int 0 to 9
             for (int i = 0; i < 10; ++i) {
                 Record r = createRecordWithAllTypes(false, i, "!", 0.0f);
@@ -117,7 +121,7 @@ public class TestBasicQuery {
     @Test
     @Category(PublicTests.class)
     public void testSelect() {
-        try(Transaction transaction = db.beginTransaction()) {
+        try (Transaction transaction = db.beginTransaction()) {
             //creates a 10 records int 0 to 9
             for (int i = 0; i < 10; ++i) {
                 Record r = createRecordWithAllTypes(false, i, "!", 0.0f);
@@ -147,7 +151,7 @@ public class TestBasicQuery {
     @Test
     @Category(PublicTests.class)
     public void testGroupBy() {
-        try(Transaction transaction = db.beginTransaction()) {
+        try (Transaction transaction = db.beginTransaction()) {
             //creates a 100 records int 0 to 9
             for (int i = 0; i < 100; ++i) {
                 Record r = createRecordWithAllTypes(false, i % 10, "!", 0.0f);

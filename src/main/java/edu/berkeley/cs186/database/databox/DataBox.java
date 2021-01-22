@@ -65,31 +65,31 @@ public abstract class DataBox implements Comparable<DataBox> {
 
     public static DataBox fromBytes(Buffer buf, Type type) {
         switch (type.getTypeId()) {
-        case BOOL: {
-            byte b = buf.get();
-            assert (b == 0 || b == 1);
-            return new BoolDataBox(b == 1);
-        }
-        case INT: {
-            return new IntDataBox(buf.getInt());
-        }
-        case FLOAT: {
-            return new FloatDataBox(buf.getFloat());
-        }
-        case STRING: {
-            byte[] bytes = new byte[type.getSizeInBytes()];
-            buf.get(bytes);
-            String s = new String(bytes, Charset.forName("UTF-8"));
-            return new StringDataBox(s, type.getSizeInBytes());
-        }
-        case LONG: {
-            return new LongDataBox(buf.getLong());
-        }
-        default: {
-            String err = String.format("Unhandled TypeId %s.",
-                                       type.getTypeId().toString());
-            throw new IllegalArgumentException(err);
-        }
+            case BOOL: {
+                byte b = buf.get();
+                assert (b == 0 || b == 1);
+                return new BoolDataBox(b == 1);
+            }
+            case INT: {
+                return new IntDataBox(buf.getInt());
+            }
+            case FLOAT: {
+                return new FloatDataBox(buf.getFloat());
+            }
+            case STRING: {
+                byte[] bytes = new byte[type.getSizeInBytes()];
+                buf.get(bytes);
+                String s = new String(bytes, Charset.forName("UTF-8"));
+                return new StringDataBox(s, type.getSizeInBytes());
+            }
+            case LONG: {
+                return new LongDataBox(buf.getLong());
+            }
+            default: {
+                String err = String.format("Unhandled TypeId %s.",
+                        type.getTypeId().toString());
+                throw new IllegalArgumentException(err);
+            }
         }
     }
 }

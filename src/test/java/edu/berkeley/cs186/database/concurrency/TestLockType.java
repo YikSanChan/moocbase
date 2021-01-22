@@ -1,16 +1,16 @@
 package edu.berkeley.cs186.database.concurrency;
 
 import edu.berkeley.cs186.database.TimeoutScaling;
-import edu.berkeley.cs186.database.categories.*;
+import edu.berkeley.cs186.database.categories.Proj4Part1Tests;
+import edu.berkeley.cs186.database.categories.Proj4Tests;
+import edu.berkeley.cs186.database.categories.PublicTests;
+import edu.berkeley.cs186.database.categories.SystemTests;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -19,7 +19,7 @@ public class TestLockType {
     // 200ms per test
     @Rule
     public TestRule globalTimeout = new DisableOnDebug(Timeout.millis((long) (
-                200 * TimeoutScaling.factor)));
+            200 * TimeoutScaling.factor)));
 
     /**
      * Compatability Matrix

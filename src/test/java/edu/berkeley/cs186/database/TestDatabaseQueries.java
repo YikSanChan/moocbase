@@ -1,9 +1,16 @@
 package edu.berkeley.cs186.database;
 
-import edu.berkeley.cs186.database.categories.*;
+import edu.berkeley.cs186.database.categories.Proj99Tests;
+import edu.berkeley.cs186.database.categories.SystemTests;
 import edu.berkeley.cs186.database.concurrency.DummyLockManager;
 import edu.berkeley.cs186.database.databox.*;
-import org.junit.*;
+import edu.berkeley.cs186.database.query.QueryPlan;
+import edu.berkeley.cs186.database.table.Record;
+import edu.berkeley.cs186.database.table.Schema;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 
@@ -16,12 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import edu.berkeley.cs186.database.databox.FloatDataBox;
-import edu.berkeley.cs186.database.databox.StringDataBox;
-import edu.berkeley.cs186.database.query.QueryPlan;
-import edu.berkeley.cs186.database.table.Record;
-import edu.berkeley.cs186.database.table.Schema;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 @Category({Proj99Tests.class})
 public class TestDatabaseQueries {
@@ -86,7 +88,7 @@ public class TestDatabaseQueries {
 
         Schema studentSchema = new Schema(studentSchemaNames, studentSchemaTypes);
 
-        try(Transaction t = database.beginTransaction()) {
+        try (Transaction t = database.beginTransaction()) {
             t.createTable(studentSchema, "Students");
 
             List<String> courseSchemaNames = new ArrayList<>();
@@ -118,7 +120,7 @@ public class TestDatabaseQueries {
     }
 
     private void readTuplesFromFiles() throws IOException {
-        try(Transaction transaction = database.beginTransaction()) {
+        try (Transaction transaction = database.beginTransaction()) {
             // read student tuples
             List<String> studentLines = Files.readAllLines(Paths.get("data", "Students.csv"), Charset.defaultCharset());
 
@@ -148,7 +150,7 @@ public class TestDatabaseQueries {
             }
 
             List<String> enrollmentLines = Files.readAllLines(Paths.get("data", "Enrollments.csv"),
-                                           Charset.defaultCharset());
+                    Charset.defaultCharset());
 
             for (String line : enrollmentLines) {
                 String[] splits = line.split(",");

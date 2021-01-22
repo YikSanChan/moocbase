@@ -1,18 +1,14 @@
 package edu.berkeley.cs186.database.table;
 
+import edu.berkeley.cs186.database.DatabaseException;
+import edu.berkeley.cs186.database.common.Buffer;
+import edu.berkeley.cs186.database.databox.*;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import edu.berkeley.cs186.database.DatabaseException;
-import edu.berkeley.cs186.database.common.Buffer;
-import edu.berkeley.cs186.database.databox.DataBox;
-import edu.berkeley.cs186.database.databox.FloatDataBox;
-import edu.berkeley.cs186.database.databox.StringDataBox;
-import edu.berkeley.cs186.database.databox.Type;
-import edu.berkeley.cs186.database.databox.TypeId;
 
 /**
  * The schema of a table includes the name and type of every one of its
@@ -30,7 +26,7 @@ public class Schema {
     private short sizeInBytes;
 
     public Schema(List<String> fieldNames, List<Type> fieldTypes) {
-        assert(fieldNames.size() == fieldTypes.size());
+        assert (fieldNames.size() == fieldTypes.size());
         this.fieldNames = fieldNames;
         this.fieldTypes = fieldTypes;
 
@@ -55,7 +51,7 @@ public class Schema {
     Record verify(List<DataBox> values) {
         if (values.size() != fieldNames.size()) {
             String err = String.format("Expected %d values, but got %d.",
-                                       fieldNames.size(), values.size());
+                    fieldNames.size(), values.size());
             throw new DatabaseException(err);
         }
 
@@ -63,21 +59,21 @@ public class Schema {
             Type actual = values.get(i).type();
             Type expected = fieldTypes.get(i);
             if (!actual.equals(expected)) {
-                if(actual.getTypeId() == TypeId.STRING && expected.getTypeId() == TypeId.STRING) {
+                if (actual.getTypeId() == TypeId.STRING && expected.getTypeId() == TypeId.STRING) {
                     // Implicit cast
                     DataBox wrongSize = values.get(i);
                     values.set(i, new StringDataBox(wrongSize.getString(), expected.getSizeInBytes()));
                     continue;
                 }
-                if(actual.getTypeId() == TypeId.INT && expected.getTypeId() == TypeId.FLOAT) {
+                if (actual.getTypeId() == TypeId.INT && expected.getTypeId() == TypeId.FLOAT) {
                     // Implicit cast
                     DataBox intBox = values.get(i);
                     values.set(i, new FloatDataBox((float) intBox.getInt()));
                     continue;
                 }
                 String err = String.format(
-                                 "Expected field %d to be of type %s, but got value of type %s.",
-                                 i, expected, actual);
+                        "Expected field %d to be of type %s, but got value of type %s.",
+                        i, expected, actual);
                 throw new DatabaseException(err);
             }
         }

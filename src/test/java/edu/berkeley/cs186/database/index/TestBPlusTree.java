@@ -1,34 +1,33 @@
 package edu.berkeley.cs186.database.index;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.function.Supplier;
-
 import edu.berkeley.cs186.database.TimeoutScaling;
+import edu.berkeley.cs186.database.categories.Proj2Tests;
+import edu.berkeley.cs186.database.categories.PublicTests;
+import edu.berkeley.cs186.database.categories.SystemTests;
+import edu.berkeley.cs186.database.common.Pair;
 import edu.berkeley.cs186.database.concurrency.DummyLockContext;
 import edu.berkeley.cs186.database.concurrency.LockContext;
+import edu.berkeley.cs186.database.databox.DataBox;
+import edu.berkeley.cs186.database.databox.IntDataBox;
+import edu.berkeley.cs186.database.databox.Type;
 import edu.berkeley.cs186.database.io.DiskSpaceManager;
 import edu.berkeley.cs186.database.io.MemoryDiskSpaceManager;
 import edu.berkeley.cs186.database.memory.BufferManager;
 import edu.berkeley.cs186.database.memory.BufferManagerImpl;
 import edu.berkeley.cs186.database.memory.ClockEvictionPolicy;
 import edu.berkeley.cs186.database.recovery.DummyRecoveryManager;
-import org.junit.*;
+import edu.berkeley.cs186.database.table.RecordId;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 
-import edu.berkeley.cs186.database.categories.*;
-import edu.berkeley.cs186.database.common.Pair;
-import edu.berkeley.cs186.database.databox.DataBox;
-import edu.berkeley.cs186.database.databox.IntDataBox;
-import edu.berkeley.cs186.database.databox.Type;
-import edu.berkeley.cs186.database.table.RecordId;
+import java.util.*;
+import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
 
@@ -47,10 +46,10 @@ public class TestBPlusTree {
     // 3 seconds max per method tested.
     @Rule
     public TestRule globalTimeout = new DisableOnDebug(Timeout.millis((long) (
-                3000 * TimeoutScaling.factor)));
+            3000 * TimeoutScaling.factor)));
 
     @Before
-    public void setup()  {
+    public void setup() {
         DiskSpaceManager diskSpaceManager = new MemoryDiskSpaceManager();
         diskSpaceManager.allocPart(0);
         this.bufferManager = new BufferManagerImpl(diskSpaceManager, new DummyRecoveryManager(), 1024,
@@ -67,7 +66,7 @@ public class TestBPlusTree {
     // Helpers /////////////////////////////////////////////////////////////////
     private void setBPlusTreeMetadata(Type keySchema, int order) {
         this.metadata = new BPlusTreeMetadata("test", "col", keySchema, order,
-                                              0, DiskSpaceManager.INVALID_PAGE_NUM, -1);
+                0, DiskSpaceManager.INVALID_PAGE_NUM, -1);
     }
 
     private BPlusTree getBPlusTree(Type keySchema, int order) {
@@ -90,8 +89,8 @@ public class TestBPlusTree {
         long newIOs = bufferManager.getNumIOs();
         long maxIOs = maxIOsOverride.hasNext() ? maxIOsOverride.next() : MAX_IO_PER_ITER_CREATE;
         assertFalse("too many I/Os used constructing iterator (" + (newIOs - prevIOs) + " > " + maxIOs +
-                    ") - are you materializing more than you need?",
-                    newIOs - prevIOs > maxIOs);
+                        ") - are you materializing more than you need?",
+                newIOs - prevIOs > maxIOs);
 
         List<T> xs = new ArrayList<>();
         while (iter.hasNext()) {
@@ -100,15 +99,15 @@ public class TestBPlusTree {
             newIOs = bufferManager.getNumIOs();
             maxIOs = maxIOsOverride.hasNext() ? maxIOsOverride.next() : MAX_IO_PER_NEXT;
             assertFalse("too many I/Os used per next() call (" + (newIOs - prevIOs) + " > " + maxIOs +
-                        ") - are you materializing more than you need?",
-                        newIOs - prevIOs > maxIOs);
+                            ") - are you materializing more than you need?",
+                    newIOs - prevIOs > maxIOs);
         }
 
         long finalIOs = bufferManager.getNumIOs();
         maxIOs = xs.size() / (2 * metadata.getOrder());
         assertTrue("too few I/Os used overall (" + (finalIOs - initialIOs) + " < " + maxIOs +
-                   ") - are you materializing before the iterator is even constructed?",
-                   (finalIOs - initialIOs) >= maxIOs);
+                        ") - are you materializing before the iterator is even constructed?",
+                (finalIOs - initialIOs) >= maxIOs);
         return xs;
     }
 

@@ -1,8 +1,5 @@
 package edu.berkeley.cs186.database.index;
 
-import java.nio.ByteBuffer;
-import java.util.*;
-
 import edu.berkeley.cs186.database.common.Buffer;
 import edu.berkeley.cs186.database.common.Pair;
 import edu.berkeley.cs186.database.concurrency.LockContext;
@@ -11,6 +8,9 @@ import edu.berkeley.cs186.database.databox.Type;
 import edu.berkeley.cs186.database.memory.BufferManager;
 import edu.berkeley.cs186.database.memory.Page;
 import edu.berkeley.cs186.database.table.RecordId;
+
+import java.nio.ByteBuffer;
+import java.util.*;
 
 /**
  * A leaf of a B+ tree. Every leaf in a B+ tree of order d stores between d and
@@ -106,6 +106,7 @@ class LeafNode extends BPlusNode {
     private Optional<Long> rightSibling;
 
     // Constructors ////////////////////////////////////////////////////////////
+
     /**
      * Construct a brand new leaf node. This constructor will fetch a new pinned
      * page from the provided BufferManager `bufferManager` and persist the node
@@ -114,8 +115,8 @@ class LeafNode extends BPlusNode {
     LeafNode(BPlusTreeMetadata metadata, BufferManager bufferManager, List<DataBox> keys,
              List<RecordId> rids, Optional<Long> rightSibling, LockContext treeContext) {
         this(metadata, bufferManager, bufferManager.fetchNewPage(treeContext, metadata.getPartNum(), false),
-             keys, rids,
-             rightSibling, treeContext);
+                keys, rids,
+                rightSibling, treeContext);
     }
 
     /**
@@ -124,7 +125,7 @@ class LeafNode extends BPlusNode {
     private LeafNode(BPlusTreeMetadata metadata, BufferManager bufferManager, Page page,
                      List<DataBox> keys,
                      List<RecordId> rids, Optional<Long> rightSibling, LockContext treeContext) {
-        assert(keys.size() == rids.size());
+        assert (keys.size() == rids.size());
 
         this.metadata = metadata;
         this.bufferManager = bufferManager;
@@ -166,7 +167,7 @@ class LeafNode extends BPlusNode {
     // See BPlusNode.bulkLoad.
     @Override
     public Optional<Pair<DataBox, Long>> bulkLoad(Iterator<Pair<DataBox, RecordId>> data,
-            float fillFactor) {
+                                                  float fillFactor) {
         // TODO(proj2): implement
 
         return Optional.empty();
@@ -181,6 +182,7 @@ class LeafNode extends BPlusNode {
     }
 
     // Iterators ///////////////////////////////////////////////////////////////
+
     /** Return the record id associated with `key`. */
     Optional<RecordId> getKey(DataBox key) {
         int index = keys.indexOf(key);
@@ -384,9 +386,9 @@ class LeafNode extends BPlusNode {
         }
         LeafNode n = (LeafNode) o;
         return page.getPageNum() == n.page.getPageNum() &&
-               keys.equals(n.keys) &&
-               rids.equals(n.rids) &&
-               rightSibling.equals(n.rightSibling);
+                keys.equals(n.keys) &&
+                rids.equals(n.rids) &&
+                rightSibling.equals(n.rightSibling);
     }
 
     @Override

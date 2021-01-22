@@ -4,17 +4,17 @@ package edu.berkeley.cs186.database.cli.parser;
 
 public
 class ASTCreateIndexStatement extends SimpleNode {
-  public ASTCreateIndexStatement(int id) {
-    super(id);
-  }
+    public ASTCreateIndexStatement(int id) {
+        super(id);
+    }
 
-  public ASTCreateIndexStatement(MoocParser p, int id) {
-    super(p, id);
-  }
+    public ASTCreateIndexStatement(MoocParser p, int id) {
+        super(p, id);
+    }
 
-  /** Accept the visitor. **/
-  public void jjtAccept(MoocParserVisitor visitor, Object data) {
-    visitor.visit(this, data);
-  }
+    /** Accept the visitor. **/
+    public void jjtAccept(MoocParserVisitor visitor, Object data) {
+        visitor.visit(this, data);
+    }
 }
 /* JavaCC - OriginalChecksum=9c22fed090f1ec0221db3e194fb2783a (do not edit this line) */

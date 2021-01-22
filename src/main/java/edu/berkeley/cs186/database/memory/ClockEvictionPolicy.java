@@ -20,7 +20,8 @@ public class ClockEvictionPolicy implements EvictionPolicy {
      * @param frame new frame to be initialized
      */
     @Override
-    public void init(BufferFrame frame) {}
+    public void init(BufferFrame frame) {
+    }
 
     /**
      * Called when a frame is hit.
@@ -65,5 +66,6 @@ public class ClockEvictionPolicy implements EvictionPolicy {
      * @param frame frame being removed
      */
     @Override
-    public void cleanup(BufferFrame frame) {}
+    public void cleanup(BufferFrame frame) {
+    }
 }

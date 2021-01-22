@@ -71,10 +71,10 @@ public class AllocPartLogRecord extends LogRecord {
     public byte[] toBytes() {
         byte[] b = new byte[1 + Long.BYTES + Integer.BYTES + Long.BYTES];
         ByteBuffer.wrap(b)
-        .put((byte) getType().getValue())
-        .putLong(transNum)
-        .putInt(partNum)
-        .putLong(prevLSN);
+                .put((byte) getType().getValue())
+                .putLong(transNum)
+                .putInt(partNum)
+                .putLong(prevLSN);
         return b;
     }
 
@@ -87,13 +87,19 @@ public class AllocPartLogRecord extends LogRecord {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (o == null || getClass() != o.getClass()) { return false; }
-        if (!super.equals(o)) { return false; }
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         AllocPartLogRecord that = (AllocPartLogRecord) o;
         return transNum == that.transNum &&
-               partNum == that.partNum &&
-               prevLSN == that.prevLSN;
+                partNum == that.partNum &&
+                prevLSN == that.prevLSN;
     }
 
     @Override
@@ -104,10 +110,10 @@ public class AllocPartLogRecord extends LogRecord {
     @Override
     public String toString() {
         return "AllocPartLogRecord{" +
-               "transNum=" + transNum +
-               ", partNum=" + partNum +
-               ", prevLSN=" + prevLSN +
-               ", LSN=" + LSN +
-               '}';
+                "transNum=" + transNum +
+                ", partNum=" + partNum +
+                ", prevLSN=" + prevLSN +
+                ", LSN=" + LSN +
+                '}';
     }
 }

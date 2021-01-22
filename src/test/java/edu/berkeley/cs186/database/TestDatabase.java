@@ -1,24 +1,27 @@
 package edu.berkeley.cs186.database;
 
-import edu.berkeley.cs186.database.categories.*;
+import edu.berkeley.cs186.database.categories.Proj99Tests;
+import edu.berkeley.cs186.database.categories.SystemTests;
 import edu.berkeley.cs186.database.common.PredicateOperator;
 import edu.berkeley.cs186.database.databox.*;
 import edu.berkeley.cs186.database.query.QueryPlan;
-import edu.berkeley.cs186.database.table.*;
-
+import edu.berkeley.cs186.database.table.Record;
+import edu.berkeley.cs186.database.table.RecordId;
+import edu.berkeley.cs186.database.table.Schema;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
-
-import static org.junit.Assert.*;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 @Category({Proj99Tests.class, SystemTests.class})
 public class TestDatabase {
@@ -35,14 +38,14 @@ public class TestDatabase {
         this.filename = testDir.getAbsolutePath();
         this.db = new Database(filename, 32);
         this.db.setWorkMem(4);
-        try(Transaction t = this.db.beginTransaction()) {
+        try (Transaction t = this.db.beginTransaction()) {
             t.dropAllTables();
         }
     }
 
     @After
     public void afterEach() {
-        try(Transaction t = this.db.beginTransaction()) {
+        try (Transaction t = this.db.beginTransaction()) {
             t.dropAllTables();
         }
         this.db.close();
@@ -52,7 +55,7 @@ public class TestDatabase {
     public void testTableCreate() {
         Schema s = TestUtils.createSchemaWithAllTypes();
 
-        try(Transaction t = this.db.beginTransaction()) {
+        try (Transaction t = this.db.beginTransaction()) {
             t.createTable(s, "testTable1");
         }
     }
@@ -64,7 +67,7 @@ public class TestDatabase {
 
         String tableName = "testTable1";
 
-        try(Transaction t1 = db.beginTransaction()) {
+        try (Transaction t1 = db.beginTransaction()) {
             t1.createTable(s, tableName);
             RecordId rid = t1.getTransactionContext().addRecord(tableName, input.getValues());
             t1.getTransactionContext().getRecord(tableName, rid);
@@ -78,7 +81,7 @@ public class TestDatabase {
 
         String tableName = "testTable1";
 
-        try(Transaction t1 = db.beginTransaction()) {
+        try (Transaction t1 = db.beginTransaction()) {
             t1.createTable(s, tableName);
             RecordId rid = t1.getTransactionContext().addRecord(tableName, input.getValues());
             Record rec = t1.getTransactionContext().getRecord(tableName, rid);
@@ -101,7 +104,7 @@ public class TestDatabase {
         RecordId rid;
         Record rec;
         String tempTableName;
-        try(Transaction t1 = db.beginTransaction()) {
+        try (Transaction t1 = db.beginTransaction()) {
             t1.createTable(s, tableName);
             rid = t1.getTransactionContext().addRecord(tableName, input.getValues());
             rec = t1.getTransactionContext().getRecord(tableName, rid);
@@ -113,7 +116,7 @@ public class TestDatabase {
             assertEquals(input, rec);
         }
 
-        try(Transaction t2 = db.beginTransaction()) {
+        try (Transaction t2 = db.beginTransaction()) {
             t2.getTransactionContext().addRecord(tempTableName, input.getValues());
         }
     }
@@ -127,7 +130,7 @@ public class TestDatabase {
 
         RecordId rid;
         Record rec;
-        try(Transaction t1 = db.beginTransaction()) {
+        try (Transaction t1 = db.beginTransaction()) {
             t1.createTable(s, tableName);
             rid = t1.getTransactionContext().addRecord(tableName, input.getValues());
             rec = t1.getTransactionContext().getRecord(tableName, rid);
@@ -138,7 +141,7 @@ public class TestDatabase {
         db.close();
         db = new Database(this.filename, 32);
 
-        try(Transaction t1 = db.beginTransaction()) {
+        try (Transaction t1 = db.beginTransaction()) {
             rec = t1.getTransactionContext().getRecord(tableName, rid);
             assertEquals(input, rec);
         }
@@ -148,20 +151,20 @@ public class TestDatabase {
     public void testREADMESample() {
         try (Transaction t1 = db.beginTransaction()) {
             Schema s = new Schema(
-                Arrays.asList("id", "firstName", "lastName"),
-                Arrays.asList(Type.intType(), Type.stringType(10), Type.stringType(10))
+                    Arrays.asList("id", "firstName", "lastName"),
+                    Arrays.asList(Type.intType(), Type.stringType(10), Type.stringType(10))
             );
             t1.createTable(s, "table1");
             t1.insert("table1", Arrays.asList(
-                          new IntDataBox(1),
-                          new StringDataBox("John", 10),
-                          new StringDataBox("Doe", 10)
-                      ));
+                    new IntDataBox(1),
+                    new StringDataBox("John", 10),
+                    new StringDataBox("Doe", 10)
+            ));
             t1.insert("table1", Arrays.asList(
-                          new IntDataBox(2),
-                          new StringDataBox("Jane", 10),
-                          new StringDataBox("Doe", 10)
-                      ));
+                    new IntDataBox(2),
+                    new StringDataBox("Jane", 10),
+                    new StringDataBox("Doe", 10)
+            ));
             t1.commit();
         }
 
@@ -169,16 +172,16 @@ public class TestDatabase {
             Iterator<Record> iter = t2.query("table1").execute();
 
             assertEquals(Arrays.asList(
-                             new IntDataBox(1),
-                             new StringDataBox("John", 10),
-                             new StringDataBox("Doe", 10)
-                         ), iter.next().getValues());
+                    new IntDataBox(1),
+                    new StringDataBox("John", 10),
+                    new StringDataBox("Doe", 10)
+            ), iter.next().getValues());
 
             assertEquals(Arrays.asList(
-                             new IntDataBox(2),
-                             new StringDataBox("Jane", 10),
-                             new StringDataBox("Doe", 10)
-                         ), iter.next().getValues());
+                    new IntDataBox(2),
+                    new StringDataBox("Jane", 10),
+                    new StringDataBox("Doe", 10)
+            ), iter.next().getValues());
 
             assertFalse(iter.hasNext());
 
@@ -190,20 +193,20 @@ public class TestDatabase {
     public void testJoinQuery() {
         try (Transaction t1 = db.beginTransaction()) {
             Schema s = new Schema(
-                Arrays.asList("id", "firstName", "lastName"),
-                Arrays.asList(Type.intType(), Type.stringType(10), Type.stringType(10))
+                    Arrays.asList("id", "firstName", "lastName"),
+                    Arrays.asList(Type.intType(), Type.stringType(10), Type.stringType(10))
             );
             t1.createTable(s, "table1");
             t1.insert("table1", Arrays.asList(
-                          new IntDataBox(1),
-                          new StringDataBox("John", 10),
-                          new StringDataBox("Doe", 10)
-                      ));
+                    new IntDataBox(1),
+                    new StringDataBox("John", 10),
+                    new StringDataBox("Doe", 10)
+            ));
             t1.insert("table1", Arrays.asList(
-                          new IntDataBox(2),
-                          new StringDataBox("Jane", 10),
-                          new StringDataBox("Doe", 10)
-                      ));
+                    new IntDataBox(2),
+                    new StringDataBox("Jane", 10),
+                    new StringDataBox("Doe", 10)
+            ));
             t1.commit();
         }
 
@@ -223,12 +226,12 @@ public class TestDatabase {
             Iterator<Record> iter = queryPlan.execute();
 
             assertEquals(Arrays.asList(
-                             new IntDataBox(1),
-                             new IntDataBox(2),
-                             new StringDataBox("John", 10),
-                             new StringDataBox("Jane", 10),
-                             new StringDataBox("Doe", 10)
-                         ), iter.next().getValues());
+                    new IntDataBox(1),
+                    new IntDataBox(2),
+                    new StringDataBox("John", 10),
+                    new StringDataBox("Jane", 10),
+                    new StringDataBox("Doe", 10)
+            ), iter.next().getValues());
 
             assertFalse(iter.hasNext());
 
@@ -240,20 +243,20 @@ public class TestDatabase {
     public void testAggQuery() {
         try (Transaction t1 = db.beginTransaction()) {
             Schema s = new Schema(
-                Arrays.asList("id", "firstName", "lastName"),
-                Arrays.asList(Type.intType(), Type.stringType(10), Type.stringType(10))
+                    Arrays.asList("id", "firstName", "lastName"),
+                    Arrays.asList(Type.intType(), Type.stringType(10), Type.stringType(10))
             );
             t1.createTable(s, "table1");
             t1.insert("table1", Arrays.asList(
-                          new IntDataBox(1),
-                          new StringDataBox("John", 10),
-                          new StringDataBox("Doe", 10)
-                      ));
+                    new IntDataBox(1),
+                    new StringDataBox("John", 10),
+                    new StringDataBox("Doe", 10)
+            ));
             t1.insert("table1", Arrays.asList(
-                          new IntDataBox(2),
-                          new StringDataBox("Jane", 10),
-                          new StringDataBox("Doe", 10)
-                      ));
+                    new IntDataBox(2),
+                    new StringDataBox("Jane", 10),
+                    new StringDataBox("Doe", 10)
+            ));
             t1.commit();
         }
 
@@ -271,10 +274,10 @@ public class TestDatabase {
             Iterator<Record> iter = queryPlan.execute();
 
             assertEquals(Arrays.asList(
-                             new IntDataBox(2),
-                             new IntDataBox(3),
-                             new FloatDataBox(1.5f)
-                         ), iter.next().getValues());
+                    new IntDataBox(2),
+                    new IntDataBox(3),
+                    new FloatDataBox(1.5f)
+            ), iter.next().getValues());
 
             assertFalse(iter.hasNext());
 
@@ -286,20 +289,20 @@ public class TestDatabase {
     public void testGroupByQuery() {
         try (Transaction t1 = db.beginTransaction()) {
             Schema s = new Schema(
-                Arrays.asList("id", "firstName", "lastName"),
-                Arrays.asList(Type.intType(), Type.stringType(10), Type.stringType(10))
+                    Arrays.asList("id", "firstName", "lastName"),
+                    Arrays.asList(Type.intType(), Type.stringType(10), Type.stringType(10))
             );
             t1.createTable(s, "table1");
             t1.insert("table1", Arrays.asList(
-                          new IntDataBox(1),
-                          new StringDataBox("John", 10),
-                          new StringDataBox("Doe", 10)
-                      ));
+                    new IntDataBox(1),
+                    new StringDataBox("John", 10),
+                    new StringDataBox("Doe", 10)
+            ));
             t1.insert("table1", Arrays.asList(
-                          new IntDataBox(2),
-                          new StringDataBox("Jane", 10),
-                          new StringDataBox("Doe", 10)
-                      ));
+                    new IntDataBox(2),
+                    new StringDataBox("Jane", 10),
+                    new StringDataBox("Doe", 10)
+            ));
 
             t1.commit();
         }
@@ -318,9 +321,9 @@ public class TestDatabase {
             Iterator<Record> iter = queryPlan.execute();
 
             assertEquals(Arrays.asList(
-                             new StringDataBox("Doe", 10),
-                             new IntDataBox(2)
-                         ), iter.next().getValues());
+                    new StringDataBox("Doe", 10),
+                    new IntDataBox(2)
+            ), iter.next().getValues());
 
             assertFalse(iter.hasNext());
 
@@ -332,20 +335,20 @@ public class TestDatabase {
     public void testUpdateQuery() {
         try (Transaction t1 = db.beginTransaction()) {
             Schema s = new Schema(
-                Arrays.asList("id", "firstName", "lastName"),
-                Arrays.asList(Type.intType(), Type.stringType(10), Type.stringType(10))
+                    Arrays.asList("id", "firstName", "lastName"),
+                    Arrays.asList(Type.intType(), Type.stringType(10), Type.stringType(10))
             );
             t1.createTable(s, "table1");
             t1.insert("table1", Arrays.asList(
-                          new IntDataBox(1),
-                          new StringDataBox("John", 10),
-                          new StringDataBox("Doe", 10)
-                      ));
+                    new IntDataBox(1),
+                    new StringDataBox("John", 10),
+                    new StringDataBox("Doe", 10)
+            ));
             t1.insert("table1", Arrays.asList(
-                          new IntDataBox(2),
-                          new StringDataBox("Jane", 10),
-                          new StringDataBox("Doe", 10)
-                      ));
+                    new IntDataBox(2),
+                    new StringDataBox("Jane", 10),
+                    new StringDataBox("Doe", 10)
+            ));
 
             t1.commit();
         }
@@ -353,21 +356,21 @@ public class TestDatabase {
         try (Transaction t2 = db.beginTransaction()) {
             // UPDATE table1 SET id = id + 10 WHERE lastName = 'Doe'
             t2.update("table1", "id", (DataBox x) -> new IntDataBox(x.getInt() + 10),
-                      "lastName", PredicateOperator.EQUALS, new StringDataBox("Doe", 10));
+                    "lastName", PredicateOperator.EQUALS, new StringDataBox("Doe", 10));
 
             Iterator<Record> iter = t2.query("table1").execute();
 
             assertEquals(Arrays.asList(
-                             new IntDataBox(11),
-                             new StringDataBox("John", 10),
-                             new StringDataBox("Doe", 10)
-                         ), iter.next().getValues());
+                    new IntDataBox(11),
+                    new StringDataBox("John", 10),
+                    new StringDataBox("Doe", 10)
+            ), iter.next().getValues());
 
             assertEquals(Arrays.asList(
-                             new IntDataBox(12),
-                             new StringDataBox("Jane", 10),
-                             new StringDataBox("Doe", 10)
-                         ), iter.next().getValues());
+                    new IntDataBox(12),
+                    new StringDataBox("Jane", 10),
+                    new StringDataBox("Doe", 10)
+            ), iter.next().getValues());
 
             assertFalse(iter.hasNext());
         }
@@ -377,20 +380,20 @@ public class TestDatabase {
     public void testDeleteQuery() {
         try (Transaction t1 = db.beginTransaction()) {
             Schema s = new Schema(
-                Arrays.asList("id", "firstName", "lastName"),
-                Arrays.asList(Type.intType(), Type.stringType(10), Type.stringType(10))
+                    Arrays.asList("id", "firstName", "lastName"),
+                    Arrays.asList(Type.intType(), Type.stringType(10), Type.stringType(10))
             );
             t1.createTable(s, "table1");
             t1.insert("table1", Arrays.asList(
-                          new IntDataBox(1),
-                          new StringDataBox("John", 10),
-                          new StringDataBox("Doe", 10)
-                      ));
+                    new IntDataBox(1),
+                    new StringDataBox("John", 10),
+                    new StringDataBox("Doe", 10)
+            ));
             t1.insert("table1", Arrays.asList(
-                          new IntDataBox(2),
-                          new StringDataBox("Jane", 10),
-                          new StringDataBox("Doe", 10)
-                      ));
+                    new IntDataBox(2),
+                    new StringDataBox("Jane", 10),
+                    new StringDataBox("Doe", 10)
+            ));
 
             t1.commit();
         }
@@ -402,10 +405,10 @@ public class TestDatabase {
             Iterator<Record> iter = t2.query("table1").execute();
 
             assertEquals(Arrays.asList(
-                             new IntDataBox(2),
-                             new StringDataBox("Jane", 10),
-                             new StringDataBox("Doe", 10)
-                         ), iter.next().getValues());
+                    new IntDataBox(2),
+                    new StringDataBox("Jane", 10),
+                    new StringDataBox("Doe", 10)
+            ), iter.next().getValues());
 
             assertFalse(iter.hasNext());
         }

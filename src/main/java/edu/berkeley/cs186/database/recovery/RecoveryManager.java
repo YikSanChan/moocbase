@@ -77,7 +77,7 @@ public interface RecoveryManager extends AutoCloseable {
      * @param before bytes starting at pageOffset before the write
      * @param after bytes starting at pageOffset after the write
      * @return LSN of last record written to log
-    */
+     */
     long logPageWrite(long transNum, long pageNum, short pageOffset, byte[] before,
                       byte[] after);
 

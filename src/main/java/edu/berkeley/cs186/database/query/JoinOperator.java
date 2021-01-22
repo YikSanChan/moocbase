@@ -1,9 +1,5 @@
 package edu.berkeley.cs186.database.query;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.common.iterator.BacktrackingIterator;
 import edu.berkeley.cs186.database.databox.DataBox;
@@ -13,6 +9,10 @@ import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.RecordId;
 import edu.berkeley.cs186.database.table.Schema;
 import edu.berkeley.cs186.database.table.stats.TableStats;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 abstract class JoinOperator extends QueryOperator {
     enum JoinType {
@@ -67,7 +67,7 @@ abstract class JoinOperator extends QueryOperator {
     @Override
     public QueryOperator getSource() {
         throw new QueryPlanException("There is no single source for join operators. Please use " +
-                                     "getRightSource and getLeftSource and the corresponding set methods.");
+                "getRightSource and getLeftSource and the corresponding set methods.");
     }
 
     QueryOperator getLeftSource() {
@@ -91,9 +91,9 @@ abstract class JoinOperator extends QueryOperator {
         List<Type> leftSchemaTypes = new ArrayList<>(leftSchema.getFieldTypes());
         List<Type> rightSchemaTypes = new ArrayList<>(rightSchema.getFieldTypes());
         if (!leftSchemaTypes.get(this.leftColumnIndex).getClass().equals(rightSchemaTypes.get(
-                    this.rightColumnIndex).getClass())) {
+                this.rightColumnIndex).getClass())) {
             throw new QueryPlanException("Mismatched types of columns " + leftColumnName + " and "
-                                         + rightColumnName + ".");
+                    + rightColumnName + ".");
         }
         leftSchemaNames.addAll(rightSchemaNames);
         leftSchemaTypes.addAll(rightSchemaTypes);
@@ -103,8 +103,8 @@ abstract class JoinOperator extends QueryOperator {
     @Override
     public String str() {
         return "type: " + this.getJoinType() + " (cost: " + this.getIOCost() + ")" +
-               "\nleftColumn: " + this.leftColumnName +
-               "\nrightColumn: " + this.rightColumnName;
+                "\nleftColumn: " + this.leftColumnName +
+                "\nrightColumn: " + this.rightColumnName;
     }
 
     @Override
@@ -133,8 +133,8 @@ abstract class JoinOperator extends QueryOperator {
         TableStats rightStats = this.rightSource.getStats();
 
         return leftStats.copyWithJoin(this.leftColumnIndex,
-                                      rightStats,
-                                      this.rightColumnIndex);
+                rightStats,
+                this.rightColumnIndex);
     }
 
     @Override
@@ -185,7 +185,7 @@ abstract class JoinOperator extends QueryOperator {
     }
 
     public BacktrackingIterator<Record> getBlockIterator(String tableName, Iterator<Page> block,
-            int maxPages) {
+                                                         int maxPages) {
         return this.transaction.getBlockIterator(tableName, block, maxPages);
     }
 
@@ -219,7 +219,7 @@ abstract class JoinOperator extends QueryOperator {
                 this.leftTableName = ((SequentialScanOperator) JoinOperator.this.getLeftSource()).getTableName();
             } else {
                 this.leftTableName = JoinOperator.this.createTempTable(
-                                         JoinOperator.this.getLeftSource().getOutputSchema());
+                        JoinOperator.this.getLeftSource().getOutputSchema());
                 Iterator<Record> leftIter = JoinOperator.this.getLeftSource().iterator();
                 while (leftIter.hasNext()) {
                     JoinOperator.this.addRecord(this.leftTableName, leftIter.next().getValues());
@@ -229,7 +229,7 @@ abstract class JoinOperator extends QueryOperator {
                 this.rightTableName = ((SequentialScanOperator) JoinOperator.this.getRightSource()).getTableName();
             } else {
                 this.rightTableName = JoinOperator.this.createTempTable(
-                                          JoinOperator.this.getRightSource().getOutputSchema());
+                        JoinOperator.this.getRightSource().getOutputSchema());
                 Iterator<Record> rightIter = JoinOperator.this.getRightSource().iterator();
                 while (rightIter.hasNext()) {
                     JoinOperator.this.addRecord(this.rightTableName, rightIter.next().getValues());

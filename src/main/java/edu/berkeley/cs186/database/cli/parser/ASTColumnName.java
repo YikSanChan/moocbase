@@ -4,17 +4,17 @@ package edu.berkeley.cs186.database.cli.parser;
 
 public
 class ASTColumnName extends SimpleNode {
-  public ASTColumnName(int id) {
-    super(id);
-  }
+    public ASTColumnName(int id) {
+        super(id);
+    }
 
-  public ASTColumnName(MoocParser p, int id) {
-    super(p, id);
-  }
+    public ASTColumnName(MoocParser p, int id) {
+        super(p, id);
+    }
 
-  /** Accept the visitor. **/
-  public void jjtAccept(MoocParserVisitor visitor, Object data) {
-    visitor.visit(this, data);
-  }
+    /** Accept the visitor. **/
+    public void jjtAccept(MoocParserVisitor visitor, Object data) {
+        visitor.visit(this, data);
+    }
 }
 /* JavaCC - OriginalChecksum=c633a736731b3a1811b1be5e943c1315 (do not edit this line) */

@@ -3,7 +3,6 @@ package edu.berkeley.cs186.database.recovery;
 import edu.berkeley.cs186.database.TimeoutScaling;
 import edu.berkeley.cs186.database.Transaction;
 import edu.berkeley.cs186.database.categories.Proj5Tests;
-import edu.berkeley.cs186.database.categories.HiddenTests;
 import edu.berkeley.cs186.database.categories.PublicTests;
 import edu.berkeley.cs186.database.common.Pair;
 import edu.berkeley.cs186.database.concurrency.DummyLockContext;
@@ -62,8 +61,8 @@ public class TestRecoveryManager {
     public void testSimpleCommit() throws Exception {
         long pageNum = 10000000002L;
         short pageOffset = 20;
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         LogManager logManager = getLogManager(recoveryManager);
         Map<Long, TransactionTableEntry> transactionTable = getTransactionTable(recoveryManager);
@@ -92,8 +91,8 @@ public class TestRecoveryManager {
     public void testAbort() throws Exception {
         long pageNum = 10000000002L;
         short pageOffset = 20;
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         Map<Long, TransactionTableEntry> transactionTable = getTransactionTable(recoveryManager);
 
@@ -119,8 +118,8 @@ public class TestRecoveryManager {
     public void testEnd() throws Exception {
         long pageNum = 10000000002L;
         short pageOffset = 20;
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         LogManager logManager = getLogManager(recoveryManager);
         Map<Long, Long> dirtyPageTable = getDirtyPageTable(recoveryManager);
@@ -131,7 +130,7 @@ public class TestRecoveryManager {
         Transaction transaction2 = DummyTransaction.create(2L);
         recoveryManager.startTransaction(transaction2);
 
-        long[] LSNs = new long[] { recoveryManager.logPageWrite(1L, pageNum, pageOffset, before, after), // 0
+        long[] LSNs = new long[]{recoveryManager.logPageWrite(1L, pageNum, pageOffset, before, after), // 0
                 recoveryManager.logPageWrite(2L, pageNum + 1, pageOffset, before, after), // 1
                 recoveryManager.logPageWrite(1L, pageNum, pageOffset, after, before), // 2
                 recoveryManager.logPageWrite(2L, pageNum + 1, pageOffset, after, before), // 3
@@ -139,7 +138,7 @@ public class TestRecoveryManager {
                 recoveryManager.logPageWrite(1L, pageNum, pageOffset, before, after), // 5
                 recoveryManager.commit(2L), // 6
                 recoveryManager.logPageWrite(1L, pageNum, pageOffset, before, after), // 7
-                -1L, -1L, };
+                -1L, -1L,};
 
         assertEquals(LSNs[7], transactionTable.get(1L).lastLSN);
         assertEquals(LSNs[6], transactionTable.get(2L).lastLSN);
@@ -216,8 +215,8 @@ public class TestRecoveryManager {
     @Category(PublicTests.class)
     public void testSimpleLogPageWrite() throws Exception {
         short pageOffset = 20;
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         Map<Long, Long> dirtyPageTable = getDirtyPageTable(recoveryManager);
         Map<Long, TransactionTableEntry> transactionTable = getTransactionTable(recoveryManager);
@@ -285,8 +284,8 @@ public class TestRecoveryManager {
     @Test
     @Category(PublicTests.class)
     public void testSimpleSavepoint() throws Exception {
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         LogManager logManager = getLogManager(recoveryManager);
 
@@ -313,8 +312,8 @@ public class TestRecoveryManager {
     @Test
     @Category(PublicTests.class)
     public void testSimpleCheckpoint() throws Exception {
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         LogManager logManager = getLogManager(recoveryManager);
 
@@ -345,8 +344,8 @@ public class TestRecoveryManager {
     @Test
     @Category(PublicTests.class)
     public void testRestartAnalysis() throws Exception {
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         LogManager logManager = getLogManager(recoveryManager);
 
@@ -423,8 +422,8 @@ public class TestRecoveryManager {
     @Category(PublicTests.class)
     @SuppressWarnings("unused")
     public void testRestartRedo() throws Exception {
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         LogManager logManager = getLogManager(recoveryManager);
         DiskSpaceManager dsm = getDiskSpaceManager(recoveryManager);
@@ -476,8 +475,8 @@ public class TestRecoveryManager {
     @Test
     @Category(PublicTests.class)
     public void testRestartUndo() throws Exception {
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         LogManager logManager = getLogManager(recoveryManager);
         DiskSpaceManager dsm = getDiskSpaceManager(recoveryManager);
@@ -552,8 +551,8 @@ public class TestRecoveryManager {
     @Test
     @Category(PublicTests.class)
     public void testSimpleRestart() throws Exception {
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         Transaction transaction1 = DummyTransaction.create(1L);
 
@@ -604,8 +603,8 @@ public class TestRecoveryManager {
     @Test
     @Category(PublicTests.class)
     public void testRestart() throws Exception {
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         Transaction transaction1 = DummyTransaction.create(1L);
         recoveryManager.startTransaction(transaction1);
@@ -614,7 +613,7 @@ public class TestRecoveryManager {
         Transaction transaction3 = DummyTransaction.create(3L);
         recoveryManager.startTransaction(transaction3);
 
-        long[] LSNs = new long[] { recoveryManager.logPageWrite(1L, 10000000001L, (short) 0, before, after), // 0
+        long[] LSNs = new long[]{recoveryManager.logPageWrite(1L, 10000000001L, (short) 0, before, after), // 0
                 recoveryManager.logPageWrite(2L, 10000000003L, (short) 0, before, after), // 1
                 recoveryManager.commit(1L), // 2
                 recoveryManager.logPageWrite(3L, 10000000004L, (short) 0, before, after), // 3
@@ -686,8 +685,8 @@ public class TestRecoveryManager {
     @Test
     @Category(PublicTests.class)
     public void testUndoCLR() throws Exception { // Releasing public sp20
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         LogManager logManager = getLogManager(recoveryManager);
         DiskSpaceManager dsm = getDiskSpaceManager(recoveryManager);
@@ -760,8 +759,8 @@ public class TestRecoveryManager {
     @Test
     @Category(PublicTests.class)
     public void testUndoDPTAndFlush() throws Exception { // released public sp20
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         LogManager logManager = getLogManager(recoveryManager);
         DiskSpaceManager dsm = getDiskSpaceManager(recoveryManager);
@@ -856,8 +855,8 @@ public class TestRecoveryManager {
     @Test
     @Category(PublicTests.class)
     public void testAbortingEnd() throws Exception { // Released public sp20
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x00, (byte) 0x00, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x00, (byte) 0x00, (byte) 0x0D};
 
         LogManager logManager = getLogManager(recoveryManager);
 
@@ -928,8 +927,8 @@ public class TestRecoveryManager {
     @Test
     @Category(PublicTests.class)
     public void testFlushingRollback() throws Exception { // Released public sp20
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x00, (byte) 0x00, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x00, (byte) 0x00, (byte) 0x0D};
 
         LogManager logManager = getLogManager(recoveryManager);
 
@@ -1040,8 +1039,8 @@ public class TestRecoveryManager {
     @Test
     @Category(PublicTests.class)
     public void testRestartCleanup1() throws Exception { // Releasing public sp20
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         Transaction transaction1 = DummyTransaction.create(1L);
 
@@ -1069,8 +1068,8 @@ public class TestRecoveryManager {
     @Test
     @Category(PublicTests.class)
     public void testAnalysisCheckpoints1() throws Exception { // Releasing public sp20
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         LogManager logManager = getLogManager(recoveryManager);
 
@@ -1210,8 +1209,8 @@ public class TestRecoveryManager {
     @Category(PublicTests.class) // Released to public sp20
     @SuppressWarnings("unused")
     public void testAnalysisCheckpoints2() throws Exception {
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x0D};
 
         LogManager logManager = getLogManager(recoveryManager);
 
@@ -1320,8 +1319,8 @@ public class TestRecoveryManager {
     @Test
     @Category(PublicTests.class)
     public void testNestedRollback() throws Exception {
-        byte[] before = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, };
-        byte[] after = new byte[] { (byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x00, (byte) 0x00, (byte) 0x0D };
+        byte[] before = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,};
+        byte[] after = new byte[]{(byte) 0xBA, (byte) 0xAD, (byte) 0xF0, (byte) 0x00, (byte) 0x00, (byte) 0x0D};
 
         LogManager logManager = getLogManager(recoveryManager);
 
@@ -1382,7 +1381,7 @@ public class TestRecoveryManager {
         getTransactionTable(recoveryManager).get(t2.getTransNum()).touchedPages.add(10000000001L);
         Map<Long, Long> expectedDPT = new HashMap<>(getDirtyPageTable(recoveryManager));
         Map<Long, TransactionTableEntry> expectedTxnTable = new HashMap<>(getTransactionTable(
-                    recoveryManager));
+                recoveryManager));
 
         long initNumIOs = bufferManager.getNumIOs();
 

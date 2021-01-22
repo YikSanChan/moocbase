@@ -1,14 +1,22 @@
 package edu.berkeley.cs186.database.query;
 
-import edu.berkeley.cs186.database.*;
-import edu.berkeley.cs186.database.categories.*;
+import edu.berkeley.cs186.database.Database;
+import edu.berkeley.cs186.database.TestUtils;
+import edu.berkeley.cs186.database.Transaction;
+import edu.berkeley.cs186.database.categories.Proj3Part1Tests;
+import edu.berkeley.cs186.database.categories.Proj3Tests;
+import edu.berkeley.cs186.database.categories.PublicTests;
 import edu.berkeley.cs186.database.common.Pair;
 import edu.berkeley.cs186.database.common.iterator.ArrayBacktrackingIterator;
 import edu.berkeley.cs186.database.common.iterator.BacktrackingIterator;
-import edu.berkeley.cs186.database.databox.*;
+import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.memory.Page;
+import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.Schema;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 
@@ -16,10 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import edu.berkeley.cs186.database.table.Record;
-
 import static org.junit.Assert.*;
-import org.junit.After;
 
 @Category({Proj3Tests.class, Proj3Part1Tests.class})
 public class TestGraceHashJoin {
@@ -51,7 +56,7 @@ public class TestGraceHashJoin {
     @Test
     @Category(PublicTests.class)
     public void testSimpleNHJ() {
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             Schema schema = TestUtils.createSchemaWithAllTypes();
 
             List<Record> leftRecords = new ArrayList<>();
@@ -92,7 +97,7 @@ public class TestGraceHashJoin {
     @Test
     @Category(PublicTests.class)
     public void testSimpleGHJ() {
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             List<Record> leftRecords = new ArrayList<>();
             List<Record> rightRecords = new ArrayList<>();
             List<Record> expectedOutput = new ArrayList<>();
@@ -133,7 +138,7 @@ public class TestGraceHashJoin {
     @Test
     @Category(PublicTests.class)
     public void testGHJDifferentSchemas() {
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             Schema schema1 = TestUtils.createSchemaOfIntAndString(10);
             Schema schema2 = TestUtils.createSchemaWithAllTypes();
 
@@ -184,7 +189,7 @@ public class TestGraceHashJoin {
     @Test
     @Category(PublicTests.class)
     public void testBreakNHJButPassGHJ() {
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             Schema schema = TestUtils.createSchemaOfInt();
 
             Pair<List<Record>, List<Record>> inputs = GraceHashJoin.getBreakNHJInputs();
@@ -224,7 +229,7 @@ public class TestGraceHashJoin {
     @Test
     @Category(PublicTests.class)
     public void testGHJBreak() {
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             Schema schema = TestUtils.createSchemaOfInt();
 
             Pair<List<Record>, List<Record>> inputs = GraceHashJoin.getBreakGHJInputs();

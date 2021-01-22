@@ -1,4 +1,5 @@
 package edu.berkeley.cs186.database.databox;
+
 import java.nio.ByteBuffer;
 
 public class IntDataBox extends DataBox {
@@ -49,7 +50,7 @@ public class IntDataBox extends DataBox {
     public int compareTo(DataBox d) {
         if (!(d instanceof IntDataBox)) {
             String err = String.format("Invalid comparison between %s and %s.",
-                                       toString(), d.toString());
+                    toString(), d.toString());
             throw new DataBoxException(err);
         }
         IntDataBox i = (IntDataBox) d;

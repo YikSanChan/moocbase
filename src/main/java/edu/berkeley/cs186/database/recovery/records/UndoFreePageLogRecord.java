@@ -64,11 +64,11 @@ public class UndoFreePageLogRecord extends LogRecord {
     public byte[] toBytes() {
         byte[] b = new byte[1 + Long.BYTES + Long.BYTES + Long.BYTES + Long.BYTES];
         ByteBuffer.wrap(b)
-        .put((byte) getType().getValue())
-        .putLong(transNum)
-        .putLong(pageNum)
-        .putLong(prevLSN)
-        .putLong(undoNextLSN);
+                .put((byte) getType().getValue())
+                .putLong(transNum)
+                .putLong(pageNum)
+                .putLong(prevLSN)
+                .putLong(undoNextLSN);
         return b;
     }
 
@@ -82,14 +82,20 @@ public class UndoFreePageLogRecord extends LogRecord {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (o == null || getClass() != o.getClass()) { return false; }
-        if (!super.equals(o)) { return false; }
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         UndoFreePageLogRecord that = (UndoFreePageLogRecord) o;
         return transNum == that.transNum &&
-               pageNum == that.pageNum &&
-               prevLSN == that.prevLSN &&
-               undoNextLSN == that.undoNextLSN;
+                pageNum == that.pageNum &&
+                prevLSN == that.prevLSN &&
+                undoNextLSN == that.undoNextLSN;
     }
 
     @Override
@@ -100,11 +106,11 @@ public class UndoFreePageLogRecord extends LogRecord {
     @Override
     public String toString() {
         return "UndoFreePageLogRecord{" +
-               "transNum=" + transNum +
-               ", pageNum=" + pageNum +
-               ", prevLSN=" + prevLSN +
-               ", undoNextLSN=" + undoNextLSN +
-               ", LSN=" + LSN +
-               '}';
+                "transNum=" + transNum +
+                ", pageNum=" + pageNum +
+                ", prevLSN=" + prevLSN +
+                ", undoNextLSN=" + undoNextLSN +
+                ", LSN=" + LSN +
+                '}';
     }
 }

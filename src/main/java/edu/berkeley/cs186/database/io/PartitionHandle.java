@@ -162,8 +162,8 @@ class PartitionHandle implements AutoCloseable {
 
         if (Bits.getBit(headerBytes, pageIndex) == Bits.Bit.ONE) {
             throw new IllegalStateException("page at (part=" + partNum + ", header=" + headerIndex + ", index="
-                                            +
-                                            pageIndex + ") already allocated");
+                    +
+                    pageIndex + ") already allocated");
         }
 
         Bits.setBit(headerBytes, pageIndex, Bits.Bit.ONE);

@@ -52,10 +52,10 @@ public class TestDatabaseDeadlockPrecheck {
                 Database database = new Database(filename, 128, lockManager);
                 database.setWorkMem(32);
                 database.waitSetupFinished();
-                try(Transaction transaction = database.beginTransaction()) {
+                try (Transaction transaction = database.beginTransaction()) {
                     lockManager.acquire(transaction.getTransactionContext(), name, lockType);
                 }
-                try(Transaction transaction = database.beginTransaction()) {
+                try (Transaction transaction = database.beginTransaction()) {
                     lockManager.acquire(transaction.getTransactionContext(), name, lockType);
                 }
             } catch (IOException e) {

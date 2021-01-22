@@ -1,17 +1,17 @@
 package edu.berkeley.cs186.database.query;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
-import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.DatabaseException;
+import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.table.MarkerRecord;
 import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.Schema;
 import edu.berkeley.cs186.database.table.stats.TableStats;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 class GroupByOperator extends QueryOperator {
     private int groupByColumnIndex;
@@ -57,7 +57,7 @@ class GroupByOperator extends QueryOperator {
     @Override
     public String str() {
         return "type: " + this.getType() + " (cost: " + this.getIOCost() + ")" +
-               "\ncolumn: " + this.groupByColumn;
+                "\ncolumn: " + this.groupByColumn;
     }
 
     /**
@@ -99,7 +99,7 @@ class GroupByOperator extends QueryOperator {
                 String tableName;
                 if (!this.hashGroupTempTables.containsKey(groupByColumn.toString())) {
                     tableName = GroupByOperator.this.transaction.createTempTable(
-                                    GroupByOperator.this.getSource().getOutputSchema());
+                            GroupByOperator.this.getSource().getOutputSchema());
                     this.hashGroupTempTables.put(groupByColumn.toString(), tableName);
                 } else {
                     tableName = this.hashGroupTempTables.get(groupByColumn.toString());

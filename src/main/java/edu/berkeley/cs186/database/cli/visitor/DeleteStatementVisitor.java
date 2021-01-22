@@ -1,10 +1,12 @@
 package edu.berkeley.cs186.database.cli.visitor;
 
 import edu.berkeley.cs186.database.Transaction;
-import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.cli.PrettyPrinter;
-import edu.berkeley.cs186.database.cli.parser.*;
+import edu.berkeley.cs186.database.cli.parser.ASTBinaryExpression;
+import edu.berkeley.cs186.database.cli.parser.ASTColumnName;
+import edu.berkeley.cs186.database.cli.parser.ASTTableName;
 import edu.berkeley.cs186.database.common.PredicateOperator;
+import edu.berkeley.cs186.database.databox.DataBox;
 
 public class DeleteStatementVisitor extends StatementVisitor {
     public String tableName;
