@@ -136,10 +136,12 @@ public class BPlusTree {
      */
     public Optional<RecordId> get(DataBox key) {
         typecheck(key);
-        // TODO(proj2): implement
-        // TODO(proj4_part3): B+ tree locking
 
-        return Optional.empty();
+        // DONE(proj2): implement
+        return root.get(key).getKey(key);
+
+
+        // TODO(proj4_part3): B+ tree locking
     }
 
     /**
@@ -241,10 +243,27 @@ public class BPlusTree {
         // Note: You should NOT update the root variable directly.
         // Use the provided updateRoot() helper method to change
         // the tree's root if the old root splits.
+        Optional<Pair<DataBox, Long>> nextLevelPutResult = root.put(key, rid);
+
+        // no root overflow
+        if (!nextLevelPutResult.isPresent()) {
+            return;
+        }
+
+        // root overflow, splits the root
+        DataBox newRootKey = nextLevelPutResult.get().getFirst();
+        // Right node to the old root
+        long newRightInnerPageNum = nextLevelPutResult.get().getSecond();
+
+        InnerNode newRoot = new InnerNode(
+                metadata,
+                bufferManager,
+                Collections.singletonList(newRootKey),
+                Arrays.asList(root.getPage().getPageNum(), newRightInnerPageNum),
+                lockContext);
+        updateRoot(newRoot);
 
         // TODO(proj4_part3): B+ tree locking
-
-        return;
     }
 
     /**
@@ -288,10 +307,9 @@ public class BPlusTree {
      */
     public void remove(DataBox key) {
         typecheck(key);
-        // TODO(proj2): implement
+        // DONE(proj2): implement
+        root.remove(key);
         // TODO(proj4_part3): B+ tree locking
-
-        return;
     }
 
     // Helpers /////////////////////////////////////////////////////////////////

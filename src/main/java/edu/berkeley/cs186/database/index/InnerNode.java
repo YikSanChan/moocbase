@@ -79,26 +79,55 @@ class InnerNode extends BPlusNode {
     // See BPlusNode.get.
     @Override
     public LeafNode get(DataBox key) {
-        // TODO(proj2): implement
-
-        return null;
+        // DONE(proj2): implement
+        return getChild(getChildIndex(key)).get(key);
     }
 
     // See BPlusNode.getLeftmostLeaf.
     @Override
     public LeafNode getLeftmostLeaf() {
         assert (children.size() > 0);
-        // TODO(proj2): implement
-
-        return null;
+        // DONE(proj2): implement
+        return getChild(0).getLeftmostLeaf();
     }
 
     // See BPlusNode.put.
+    //
     @Override
     public Optional<Pair<DataBox, Long>> put(DataBox key, RecordId rid) {
-        // TODO(proj2): implement
+        // DONE(proj2): implement
+        Optional<Pair<DataBox, Long>> nextLevelPutResult = getChild(getChildIndex(key)).put(key, rid);
+        if (!nextLevelPutResult.isPresent()) {
+            return Optional.empty();
+        }
 
-        return Optional.empty();
+        int keyInsertIndex = -Collections.binarySearch(keys, key) - 1;
+        // Try a few examples in BPlusNode.put comments and this is how the relation figured out
+        int childInsertIndex = keyInsertIndex + 1;
+        keys.add(keyInsertIndex, nextLevelPutResult.get().getFirst());
+        children.add(childInsertIndex, nextLevelPutResult.get().getSecond());
+
+        int order = metadata.getOrder();
+
+        // no overflow
+        if (keys.size() <= order * 2) {
+            sync();
+            return Optional.empty();
+        }
+
+        // overflow, then splits
+        DataBox splitKey = keys.get(order);
+
+        List<DataBox> currentInnerKeys = new ArrayList<>(keys.subList(0, order));
+        List<Long> currentInnerChildren = new ArrayList<>(children.subList(0, order + 1));
+        List<DataBox> newInnerKeys = new ArrayList<>(keys.subList(order + 1, keys.size()));
+        List<Long> newInnerChildren = new ArrayList<>(children.subList(order + 1, children.size()));
+
+        InnerNode newInner = new InnerNode(metadata, bufferManager, newInnerKeys, newInnerChildren, treeContext);
+        keys = currentInnerKeys;
+        children = currentInnerChildren;
+        sync();
+        return Optional.of(new Pair<>(splitKey, newInner.getPage().getPageNum()));
     }
 
     // See BPlusNode.bulkLoad.
@@ -113,9 +142,8 @@ class InnerNode extends BPlusNode {
     // See BPlusNode.remove.
     @Override
     public void remove(DataBox key) {
-        // TODO(proj2): implement
-
-        return;
+        // DONE(proj2): implement
+        getChild(getChildIndex(key)).remove(key);
     }
 
     // Helpers /////////////////////////////////////////////////////////////////
@@ -127,6 +155,13 @@ class InnerNode extends BPlusNode {
     private BPlusNode getChild(int i) {
         long pageNum = children.get(i);
         return BPlusNode.fromBytes(metadata, bufferManager, treeContext, pageNum);
+    }
+
+    // Answers the question: given a key, what is the next level page number should I visit
+    // to read or write?
+    private int getChildIndex(DataBox key) {
+        int keyIndex = Collections.binarySearch(keys, key);
+        return keyIndex >= 0 ? (keyIndex + 1) : (-keyIndex - 1);
     }
 
     private void sync() {

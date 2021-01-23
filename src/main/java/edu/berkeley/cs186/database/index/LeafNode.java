@@ -143,25 +143,56 @@ class LeafNode extends BPlusNode {
     // See BPlusNode.get.
     @Override
     public LeafNode get(DataBox key) {
-        // TODO(proj2): implement
-
-        return null;
+        // DONE(proj2): implement
+        return this;
     }
 
     // See BPlusNode.getLeftmostLeaf.
     @Override
     public LeafNode getLeftmostLeaf() {
-        // TODO(proj2): implement
-
-        return null;
+        // DONE(proj2): implement
+        return this;
     }
 
     // See BPlusNode.put.
+    // Throws BPlusTreeException if the key duplicates.
+    // Returns pair (split_key, right_node_page_num) if the leaf node overflows.
+    // Returns empty if the node doesn't overflow.
     @Override
     public Optional<Pair<DataBox, Long>> put(DataBox key, RecordId rid) {
-        // TODO(proj2): implement
+        // DONE(proj2): implement
+        if (Collections.binarySearch(keys, key) >= 0) {
+            String msg = String.format("Key %s already exists, cannot insert a duplicate key", key);
+            throw new BPlusTreeException(msg);
+        }
 
-        return Optional.empty();
+        int insertIndex = -Collections.binarySearch(keys, key) - 1;
+        keys.add(insertIndex, key);
+        rids.add(insertIndex, rid);
+
+        int order = metadata.getOrder();
+
+        // no overflow
+        if (keys.size() <= order * 2) {
+            sync();
+            return Optional.empty();
+        }
+
+        // overflow, then splits
+        DataBox splitKey = keys.get(order);
+
+        List<DataBox> currentLeafKeys = new ArrayList<>(keys.subList(0, order));
+        List<RecordId> currentLeafRids = new ArrayList<>(rids.subList(0, order));
+        List<DataBox> newLeafKeys = new ArrayList<>(keys.subList(order, keys.size()));
+        List<RecordId> newLeafRids = new ArrayList<>(rids.subList(order, keys.size()));
+
+        LeafNode newLeaf = new LeafNode(metadata, bufferManager, newLeafKeys, newLeafRids, rightSibling, treeContext);
+        long newLeafPageNum = newLeaf.getPage().getPageNum();
+        keys = currentLeafKeys;
+        rids = currentLeafRids;
+        rightSibling = Optional.of(newLeafPageNum);
+        sync();
+        return Optional.of(new Pair<>(splitKey, newLeafPageNum));
     }
 
     // See BPlusNode.bulkLoad.
@@ -176,9 +207,14 @@ class LeafNode extends BPlusNode {
     // See BPlusNode.remove.
     @Override
     public void remove(DataBox key) {
-        // TODO(proj2): implement
-
-        return;
+        // DONE(proj2): implement
+        int index = Collections.binarySearch(keys, key);
+        if (index < 0) {
+            return;
+        }
+        keys.remove(index);
+        rids.remove(index);
+        sync();
     }
 
     // Iterators ///////////////////////////////////////////////////////////////
