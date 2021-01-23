@@ -1,27 +1,29 @@
 package edu.berkeley.cs186.database.query;
 
-import edu.berkeley.cs186.database.*;
-import edu.berkeley.cs186.database.categories.*;
-import org.junit.*;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
-
-import java.io.File;
-
-import edu.berkeley.cs186.database.table.Schema;
-
-import edu.berkeley.cs186.database.table.Record;
+import edu.berkeley.cs186.database.Database;
+import edu.berkeley.cs186.database.TestUtils;
+import edu.berkeley.cs186.database.TimeoutScaling;
+import edu.berkeley.cs186.database.Transaction;
+import edu.berkeley.cs186.database.categories.Proj3Part2Tests;
+import edu.berkeley.cs186.database.categories.Proj3Tests;
+import edu.berkeley.cs186.database.categories.PublicTests;
+import edu.berkeley.cs186.database.databox.BoolDataBox;
+import edu.berkeley.cs186.database.databox.FloatDataBox;
 import edu.berkeley.cs186.database.databox.IntDataBox;
 import edu.berkeley.cs186.database.databox.StringDataBox;
-import edu.berkeley.cs186.database.databox.FloatDataBox;
-import edu.berkeley.cs186.database.databox.BoolDataBox;
-
+import edu.berkeley.cs186.database.table.Record;
+import edu.berkeley.cs186.database.table.Schema;
 import org.junit.After;
-
-import edu.berkeley.cs186.database.TimeoutScaling;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.DisableOnDebug;
+import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+
+import java.io.File;
 
 @Category({Proj3Tests.class, Proj3Part2Tests.class})
 public class TestOptimization2 {
@@ -37,7 +39,7 @@ public class TestOptimization2 {
     // 1 second max per method tested.
     @Rule
     public TestRule globalTimeout = new DisableOnDebug(Timeout.millis((long) (
-                1000 * TimeoutScaling.factor)));
+            1000 * TimeoutScaling.factor)));
 
     @Before
     public void beforeEach() throws Exception {
@@ -46,7 +48,7 @@ public class TestOptimization2 {
         this.db = new Database(filename, 32);
         this.db.setWorkMem(5); // B=5
 
-        try(Transaction t = this.db.beginTransaction()) {
+        try (Transaction t = this.db.beginTransaction()) {
             t.dropAllTables();
 
             Schema schema = TestUtils.createSchemaWithAllTypes();
@@ -61,7 +63,7 @@ public class TestOptimization2 {
     @After
     public void afterEach() {
         this.db.waitAllTransactions();
-        try(Transaction t = this.db.beginTransaction()) {
+        try (Transaction t = this.db.beginTransaction()) {
             t.dropAllTables();
         }
         this.db.close();
@@ -80,7 +82,7 @@ public class TestOptimization2 {
     @Test
     @Category(PublicTests.class)
     public void test() {
-        try(Transaction transaction = this.db.beginTransaction()) {
+        try (Transaction transaction = this.db.beginTransaction()) {
             //creates a 100 records int 0 to 99
             for (int i = 0; i < 2000; ++i) {
                 Record r = createRecordWithAllTypes(false, i, "!", 0.0f);

@@ -1,18 +1,17 @@
 package edu.berkeley.cs186.database.table;
 
-import java.util.*;
-
 import edu.berkeley.cs186.database.DatabaseException;
-import edu.berkeley.cs186.database.common.iterator.*;
 import edu.berkeley.cs186.database.common.Bits;
 import edu.berkeley.cs186.database.common.Buffer;
+import edu.berkeley.cs186.database.common.iterator.*;
 import edu.berkeley.cs186.database.concurrency.LockContext;
-import edu.berkeley.cs186.database.concurrency.LockType;
-import edu.berkeley.cs186.database.concurrency.LockUtil;
 import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.io.PageException;
 import edu.berkeley.cs186.database.memory.Page;
 import edu.berkeley.cs186.database.table.stats.TableStats;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * # Overview
@@ -112,6 +111,7 @@ public class Table implements BacktrackingIterable<Record> {
     private LockContext lockContext;
 
     // Constructors ////////////////////////////////////////////////////////////
+
     /**
      * Load a table named `name` with schema `schema` from `heapFile`. `lockContext`
      * is the lock context of the table (use a DummyLockContext() to disable locking). A
@@ -127,13 +127,13 @@ public class Table implements BacktrackingIterable<Record> {
         this.numRecordsPerPage = computeNumRecordsPerPage(heapFile.getEffectivePageSize(), schema);
         // mark everything that is not used for records as metadata
         this.heapFile.setEmptyPageMetadataSize((short) (heapFile.getEffectivePageSize() - numRecordsPerPage
-                                               * schema.getSizeInBytes()));
+                * schema.getSizeInBytes()));
 
         this.stats = new TableStats(this.schema, this.numRecordsPerPage);
         this.numRecords = 0;
 
         Iterator<Page> iter = this.heapFile.iterator();
-        while(iter.hasNext()) {
+        while (iter.hasNext()) {
             Page page = iter.next();
             byte[] bitmap = getBitMap(page);
 
@@ -167,7 +167,7 @@ public class Table implements BacktrackingIterable<Record> {
         numRecordsPerPage = 1;
         bitmapSizeInBytes = 0;
         heapFile.setEmptyPageMetadataSize((short) (heapFile.getEffectivePageSize() -
-                                          schema.getSizeInBytes()));
+                schema.getSizeInBytes()));
     }
 
     public TableStats getStats() {
@@ -192,7 +192,7 @@ public class Table implements BacktrackingIterable<Record> {
             page.getBuffer().get(bytes, 0, bitmapSizeInBytes);
             return bytes;
         } else {
-            return new byte[] {(byte) 0xFF};
+            return new byte[]{(byte) 0xFF};
         }
     }
 
@@ -227,6 +227,7 @@ public class Table implements BacktrackingIterable<Record> {
     }
 
     // Modifiers ///////////////////////////////////////////////////////////////
+
     /**
      * buildStatistics builds histograms on each of the columns of a table. Running
      * it multiple times refreshes the statistics
@@ -351,7 +352,7 @@ public class Table implements BacktrackingIterable<Record> {
             stats.removeRecord(record);
             int numRecords = numRecordsPerPage == 1 ? 0 : numRecordsOnPage(page);
             heapFile.updateFreeSpace(page,
-                                     (short) ((numRecordsPerPage - numRecords) * schema.getSizeInBytes()));
+                    (short) ((numRecordsPerPage - numRecords) * schema.getSizeInBytes()));
             this.numRecords--;
 
             return record;
@@ -396,7 +397,7 @@ public class Table implements BacktrackingIterable<Record> {
         // Storing each record requires 1 bit for the bitmap and 8 *
         // schema.getSizeInBytes() bits for the record.
         int recordOverheadInBits = 1 + 8 * schema.getSizeInBytes();
-        int pageSizeInBits = pageSize  * 8;
+        int pageSizeInBits = pageSize * 8;
         return pageSizeInBits / recordOverheadInBits;
     }
 
@@ -421,8 +422,8 @@ public class Table implements BacktrackingIterable<Record> {
 
         if (e >= numRecordsPerPage) {
             String msg = String.format(
-                             "There are only %d records per page, but record %d was requested.",
-                             numRecordsPerPage, e);
+                    "There are only %d records per page, but record %d was requested.",
+                    numRecordsPerPage, e);
             throw new DatabaseException(msg);
         }
     }
@@ -472,11 +473,11 @@ public class Table implements BacktrackingIterable<Record> {
             block = temp;
         }
         return new ConcatBacktrackingIterator<>(new PageIterator(new ArrayBacktrackingIterator<>(block),
-                                                true));
+                true));
     }
 
     public BacktrackingIterator<Record> blockIterator(Iterator<Page> block,
-            int maxPages) {
+                                                      int maxPages) {
         return new RecordIterator(this, blockRidIterator(block, maxPages));
     }
 

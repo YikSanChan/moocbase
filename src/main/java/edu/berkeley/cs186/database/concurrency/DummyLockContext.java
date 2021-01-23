@@ -25,19 +25,24 @@ public class DummyLockContext extends LockContext {
     }
 
     @Override
-    public void acquire(TransactionContext transaction, LockType lockType) { }
+    public void acquire(TransactionContext transaction, LockType lockType) {
+    }
 
     @Override
-    public void release(TransactionContext transaction) { }
+    public void release(TransactionContext transaction) {
+    }
 
     @Override
-    public void promote(TransactionContext transaction, LockType newLockType) { }
+    public void promote(TransactionContext transaction, LockType newLockType) {
+    }
 
     @Override
-    public void escalate(TransactionContext transaction) { }
+    public void escalate(TransactionContext transaction) {
+    }
 
     @Override
-    public void disableChildLocks() { }
+    public void disableChildLocks() {
+    }
 
     @Override
     public LockContext childContext(String readable, long name) {

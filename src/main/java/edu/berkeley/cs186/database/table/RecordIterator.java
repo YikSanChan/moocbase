@@ -1,9 +1,9 @@
 package edu.berkeley.cs186.database.table;
 
-import java.util.Iterator;
-
-import edu.berkeley.cs186.database.common.iterator.BacktrackingIterator;
 import edu.berkeley.cs186.database.DatabaseException;
+import edu.berkeley.cs186.database.common.iterator.BacktrackingIterator;
+
+import java.util.Iterator;
 
 /**
  * A RecordIterator wraps an Iterator<RecordId> to form an BacktrackingIterator<Record>.

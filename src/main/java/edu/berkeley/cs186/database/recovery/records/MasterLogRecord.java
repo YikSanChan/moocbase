@@ -29,9 +29,15 @@ public class MasterLogRecord extends LogRecord {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (o == null || getClass() != o.getClass()) { return false; }
-        if (!super.equals(o)) { return false; }
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         MasterLogRecord that = (MasterLogRecord) o;
         return lastCheckpointLSN == that.lastCheckpointLSN;
     }
@@ -44,8 +50,8 @@ public class MasterLogRecord extends LogRecord {
     @Override
     public String toString() {
         return "MasterLogRecord{" +
-               "lastCheckpointLSN=" + lastCheckpointLSN +
-               ", LSN=" + LSN +
-               '}';
+                "lastCheckpointLSN=" + lastCheckpointLSN +
+                ", LSN=" + LSN +
+                '}';
     }
 }

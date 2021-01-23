@@ -32,9 +32,9 @@ public class EndTransactionLogRecord extends LogRecord {
     public byte[] toBytes() {
         byte[] b = new byte[1 + Long.BYTES + Long.BYTES];
         ByteBuffer.wrap(b)
-        .put((byte) getType().getValue())
-        .putLong(transNum)
-        .putLong(prevLSN);
+                .put((byte) getType().getValue())
+                .putLong(transNum)
+                .putLong(prevLSN);
         return b;
     }
 
@@ -46,12 +46,18 @@ public class EndTransactionLogRecord extends LogRecord {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (o == null || getClass() != o.getClass()) { return false; }
-        if (!super.equals(o)) { return false; }
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         EndTransactionLogRecord that = (EndTransactionLogRecord) o;
         return transNum == that.transNum &&
-               prevLSN == that.prevLSN;
+                prevLSN == that.prevLSN;
     }
 
     @Override
@@ -62,9 +68,9 @@ public class EndTransactionLogRecord extends LogRecord {
     @Override
     public String toString() {
         return "EndTransactionLogRecord{" +
-               "transNum=" + transNum +
-               ", prevLSN=" + prevLSN +
-               ", LSN=" + LSN +
-               '}';
+                "transNum=" + transNum +
+                ", prevLSN=" + prevLSN +
+                ", LSN=" + LSN +
+                '}';
     }
 }

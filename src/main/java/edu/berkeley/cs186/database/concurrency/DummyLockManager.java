@@ -1,10 +1,10 @@
 package edu.berkeley.cs186.database.concurrency;
 
-import java.util.Collections;
-import java.util.List;
-
 import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.common.Pair;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Dummy lock manager that does no locking or error checking.
@@ -12,7 +12,8 @@ import edu.berkeley.cs186.database.common.Pair;
  * Used for non-locking-related tests to disable locking.
  */
 public class DummyLockManager extends LockManager {
-    public DummyLockManager() { }
+    public DummyLockManager() {
+    }
 
     @Override
     public LockContext context(String readable, long name) {
@@ -27,20 +28,24 @@ public class DummyLockManager extends LockManager {
     @Override
     public void acquireAndRelease(TransactionContext transaction, ResourceName name,
                                   LockType lockType, List<ResourceName> releaseLocks)
-    throws DuplicateLockRequestException, NoLockHeldException { }
+            throws DuplicateLockRequestException, NoLockHeldException {
+    }
 
     @Override
     public void acquire(TransactionContext transaction, ResourceName name,
-                        LockType lockType) throws DuplicateLockRequestException { }
+                        LockType lockType) throws DuplicateLockRequestException {
+    }
 
     @Override
     public void release(TransactionContext transaction, ResourceName name)
-    throws NoLockHeldException { }
+            throws NoLockHeldException {
+    }
 
     @Override
     public void promote(TransactionContext transaction, ResourceName name,
                         LockType newLockType)
-    throws DuplicateLockRequestException, NoLockHeldException, InvalidLockException { }
+            throws DuplicateLockRequestException, NoLockHeldException, InvalidLockException {
+    }
 
     @Override
     public LockType getLockType(TransactionContext transaction, ResourceName name) {

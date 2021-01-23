@@ -1,8 +1,5 @@
 package edu.berkeley.cs186.database.index;
 
-import java.util.Iterator;
-import java.util.Optional;
-
 import edu.berkeley.cs186.database.common.Buffer;
 import edu.berkeley.cs186.database.common.Pair;
 import edu.berkeley.cs186.database.concurrency.LockContext;
@@ -11,12 +8,16 @@ import edu.berkeley.cs186.database.memory.BufferManager;
 import edu.berkeley.cs186.database.memory.Page;
 import edu.berkeley.cs186.database.table.RecordId;
 
+import java.util.Iterator;
+import java.util.Optional;
+
 /**
  * An inner node or a leaf node. See InnerNode and LeafNode for more
  * information.
  */
 abstract class BPlusNode {
     // Core API ////////////////////////////////////////////////////////////////
+
     /**
      * n.get(k) returns the leaf node on which k may reside when queried from n.
      * For example, consider the following B+ tree (for brevity, only keys are
@@ -156,7 +157,7 @@ abstract class BPlusNode {
      * and fillFactor=0.75, leaf nodes should be 8/10 full.
      */
     public abstract Optional<Pair<DataBox, Long>> bulkLoad(Iterator<Pair<DataBox, RecordId>> data,
-            float fillFactor);
+                                                           float fillFactor);
 
     /**
      * n.remove(k) removes the key k and its corresponding record id from the
@@ -210,10 +211,12 @@ abstract class BPlusNode {
     public abstract void remove(DataBox key);
 
     // Helpers /////////////////////////////////////////////////////////////////
+
     /** Get the page on which this node is persisted. */
     abstract Page getPage();
 
     // Pretty Printing /////////////////////////////////////////////////////////
+
     /**
      * S-expressions (or sexps) are a compact way of encoding nested tree-like
      * structures (sort of like how JSON is a way of encoding nested dictionaries
@@ -243,6 +246,7 @@ abstract class BPlusNode {
     public abstract String toDot();
 
     // Serialization ///////////////////////////////////////////////////////////
+
     /** n.toBytes() serializes n. */
     public abstract byte[] toBytes();
 

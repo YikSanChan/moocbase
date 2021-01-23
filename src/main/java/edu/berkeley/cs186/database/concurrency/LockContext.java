@@ -3,7 +3,8 @@ package edu.berkeley.cs186.database.concurrency;
 import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.common.Pair;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -93,7 +94,7 @@ public class LockContext {
      * @throws UnsupportedOperationException if context is readonly
      */
     public void acquire(TransactionContext transaction, LockType lockType)
-    throws InvalidLockException, DuplicateLockRequestException {
+            throws InvalidLockException, DuplicateLockRequestException {
         // TODO(proj4_part2): implement
 
         return;
@@ -111,7 +112,7 @@ public class LockContext {
      * @throws UnsupportedOperationException if context is readonly
      */
     public void release(TransactionContext transaction)
-    throws NoLockHeldException, InvalidLockException {
+            throws NoLockHeldException, InvalidLockException {
         // TODO(proj4_part2): implement
 
         return;
@@ -133,7 +134,7 @@ public class LockContext {
      * @throws UnsupportedOperationException if context is readonly
      */
     public void promote(TransactionContext transaction, LockType newLockType)
-    throws DuplicateLockRequestException, NoLockHeldException, InvalidLockException {
+            throws DuplicateLockRequestException, NoLockHeldException, InvalidLockException {
         // TODO(proj4_part2): implement
 
         return;
@@ -213,7 +214,7 @@ public class LockContext {
      */
     public synchronized LockContext childContext(String readable, long name) {
         LockContext temp = new LockContext(lockman, this, new Pair<>(readable, name),
-                                           this.childLocksDisabled || this.readonly);
+                this.childLocksDisabled || this.readonly);
         LockContext child = this.children.putIfAbsent(name, temp);
         if (child == null) {
             child = temp;

@@ -1,8 +1,11 @@
 package edu.berkeley.cs186.database;
 
-import edu.berkeley.cs186.database.categories.*;
+import edu.berkeley.cs186.database.categories.Proj4Part3Tests;
+import edu.berkeley.cs186.database.categories.Proj4Tests;
+import edu.berkeley.cs186.database.categories.PublicTests;
 import edu.berkeley.cs186.database.common.PredicateOperator;
-import edu.berkeley.cs186.database.concurrency.*;
+import edu.berkeley.cs186.database.concurrency.LockType;
+import edu.berkeley.cs186.database.concurrency.LoggingLockManager;
 import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.databox.IntDataBox;
 import edu.berkeley.cs186.database.query.QueryPlan;
@@ -11,13 +14,17 @@ import edu.berkeley.cs186.database.table.RecordId;
 import edu.berkeley.cs186.database.table.Schema;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.*;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @Category({Proj4Tests.class, Proj4Part3Tests.class})
 public class TestDatabaseLocking {
@@ -59,7 +66,7 @@ public class TestDatabaseLocking {
     }
 
     @ClassRule
-    public static  TemporaryFolder checkFolder = new TemporaryFolder();
+    public static TemporaryFolder checkFolder = new TemporaryFolder();
 
     @BeforeClass
     public static void beforeAll() {
@@ -73,7 +80,7 @@ public class TestDatabaseLocking {
         File testDir = tempFolder.newFolder(TestDir);
         this.filename = testDir.getAbsolutePath();
         this.reloadDatabase();
-        try(Transaction t = this.beginTransaction()) {
+        try (Transaction t = this.beginTransaction()) {
             t.dropAllTables();
         } finally {
             this.db.waitAllTransactions();
@@ -103,7 +110,7 @@ public class TestDatabaseLocking {
     }
 
     private static <T extends Comparable<? super T>> void assertSameItems(List<T> expected,
-            List<T> actual) {
+                                                                          List<T> actual) {
         Collections.sort(expected);
         Collections.sort(actual);
         assertEquals(expected, actual);
@@ -137,9 +144,9 @@ public class TestDatabaseLocking {
         }
     }
 
-    private static List<String> prepare(Long transNum, String ... expected) {
+    private static List<String> prepare(Long transNum, String... expected) {
         return Arrays.stream(expected).map((String log) -> String.format(log,
-                                           transNum)).collect(Collectors.toList());
+                transNum)).collect(Collectors.toList());
     }
 
     private static List<String> removeMetadataLogs(List<String> log) {
@@ -160,7 +167,7 @@ public class TestDatabaseLocking {
         Record input = TestUtils.createRecordWithAllTypes();
         List<DataBox> values = input.getValues();
         List<RecordId> rids = new ArrayList<>();
-        try(Transaction t1 = beginTransaction()) {
+        try (Transaction t1 = beginTransaction()) {
             t1.createTable(s, tableName);
             int numRecords = pages * t1.getTransactionContext().getTable(tableName).getNumRecordsPerPage();
             for (int i = 0; i < numRecords; ++i) {
@@ -174,10 +181,10 @@ public class TestDatabaseLocking {
     }
 
     private List<RecordId> createTableWithIndices(String tableName, int pages,
-            List<String> indexColumns) {
+                                                  List<String> indexColumns) {
         Schema s = TestUtils.createSchemaWithTwoInts();
         List<RecordId> rids = new ArrayList<>();
-        try(Transaction t1 = beginTransaction()) {
+        try (Transaction t1 = beginTransaction()) {
             t1.createTable(s, tableName);
             for (String col : indexColumns) {
                 t1.createIndex(tableName, col, false);
@@ -185,7 +192,7 @@ public class TestDatabaseLocking {
             int numRecords = pages * t1.getTransactionContext().getTable(tableName).getNumRecordsPerPage();
             for (int i = 0; i < numRecords; ++i) {
                 rids.add(t1.getTransactionContext().addRecord(tableName, Arrays.asList(new IntDataBox(i),
-                         new IntDataBox(i))));
+                        new IntDataBox(i))));
             }
         } finally {
             this.db.waitAllTransactions();
@@ -201,18 +208,18 @@ public class TestDatabaseLocking {
         List<RecordId> rids = createTable(tableName, 4);
         lockManager.startLog();
 
-        try(Transaction t1 = beginTransaction()) {
+        try (Transaction t1 = beginTransaction()) {
             t1.getTransactionContext().getRecord(tableName, rids.get(0));
             t1.getTransactionContext().getRecord(tableName, rids.get(3 * rids.size() / 4 - 1));
             t1.getTransactionContext().getRecord(tableName, rids.get(rids.size() - 1));
 
             assertEquals(prepare(t1.getTransNum(),
-                                 "acquire %s database IS",
-                                 "acquire %s database/tables.testTable1 IS",
-                                 "acquire %s database/tables.testTable1/30000000001 S",
-                                 "acquire %s database/tables.testTable1/30000000003 S",
-                                 "acquire %s database/tables.testTable1/30000000004 S"
-                                ), removeMetadataLogs(lockManager.log));
+                    "acquire %s database IS",
+                    "acquire %s database/tables.testTable1 IS",
+                    "acquire %s database/tables.testTable1/30000000001 S",
+                    "acquire %s database/tables.testTable1/30000000003 S",
+                    "acquire %s database/tables.testTable1/30000000004 S"
+            ), removeMetadataLogs(lockManager.log));
         }
     }
 
@@ -229,7 +236,7 @@ public class TestDatabaseLocking {
             t1.getTransactionContext().getRecord(tableName, rids.get(rids.size() - 1));
 
             assertTrue("did not acquire all required locks",
-                       lockManager.getLocks(t1.getTransactionContext()).size() >= 5);
+                    lockManager.getLocks(t1.getTransactionContext()).size() >= 5);
 
             lockManager.startLog();
         } finally {
@@ -238,11 +245,11 @@ public class TestDatabaseLocking {
         }
 
         assertTrue("did not free all required locks",
-                   lockManager.getLocks(t1.getTransactionContext()).isEmpty());
+                lockManager.getLocks(t1.getTransactionContext()).isEmpty());
         assertSubsequence(prepare(t1.getTransNum(),
-                                  "release %s database/tables.testTable1/30000000003",
-                                  "release %s database"
-                                 ), lockManager.log);
+                "release %s database/tables.testTable1/30000000003",
+                "release %s database"
+        ), lockManager.log);
     }
 
     @Test
@@ -253,7 +260,7 @@ public class TestDatabaseLocking {
         Record input = TestUtils.createRecordWithAllTypes();
         List<DataBox> values = input.getValues();
 
-        try(Transaction t0 = beginTransaction()) {
+        try (Transaction t0 = beginTransaction()) {
             t0.getTransactionContext().deleteRecord(tableName, rids.get(rids.size() - 1));
         } finally {
             this.db.waitAllTransactions();
@@ -261,14 +268,14 @@ public class TestDatabaseLocking {
 
         lockManager.startLog();
 
-        try(Transaction t1 = beginTransaction()) {
+        try (Transaction t1 = beginTransaction()) {
             t1.getTransactionContext().addRecord(tableName, values);
 
             assertEquals(prepare(t1.getTransNum(),
-                                 "acquire %s database IX",
-                                 "acquire %s database/tables.testTable1 IX",
-                                 "acquire %s database/tables.testTable1/30000000004 X"
-                                ), removeMetadataLogs(lockManager.log));
+                    "acquire %s database IX",
+                    "acquire %s database/tables.testTable1 IX",
+                    "acquire %s database/tables.testTable1/30000000004 X"
+            ), removeMetadataLogs(lockManager.log));
         }
     }
 
@@ -282,14 +289,14 @@ public class TestDatabaseLocking {
 
         lockManager.startLog();
 
-        try(Transaction t1 = beginTransaction()) {
+        try (Transaction t1 = beginTransaction()) {
             t1.getTransactionContext().updateRecord(tableName, values, rids.get(rids.size() - 1));
 
             assertEquals(prepare(t1.getTransNum(),
-                                 "acquire %s database IX",
-                                 "acquire %s database/tables.testTable1 IX",
-                                 "acquire %s database/tables.testTable1/30000000004 X"
-                                ), removeMetadataLogs(lockManager.log));
+                    "acquire %s database IX",
+                    "acquire %s database/tables.testTable1 IX",
+                    "acquire %s database/tables.testTable1/30000000004 X"
+            ), removeMetadataLogs(lockManager.log));
         }
     }
 
@@ -301,14 +308,14 @@ public class TestDatabaseLocking {
 
         lockManager.startLog();
 
-        try(Transaction t1 = beginTransaction()) {
+        try (Transaction t1 = beginTransaction()) {
             t1.getTransactionContext().deleteRecord(tableName, rids.get(rids.size() - 1));
 
             assertEquals(prepare(t1.getTransNum(),
-                                 "acquire %s database IX",
-                                 "acquire %s database/tables.testTable1 IX",
-                                 "acquire %s database/tables.testTable1/30000000004 X"
-                                ), removeMetadataLogs(lockManager.log));
+                    "acquire %s database IX",
+                    "acquire %s database/tables.testTable1 IX",
+                    "acquire %s database/tables.testTable1/30000000004 X"
+            ), removeMetadataLogs(lockManager.log));
         }
     }
 
@@ -320,16 +327,16 @@ public class TestDatabaseLocking {
 
         lockManager.startLog();
 
-        try(Transaction t1 = beginTransaction()) {
+        try (Transaction t1 = beginTransaction()) {
             Iterator<Record> r = t1.getTransactionContext().getRecordIterator(tableName);
             while (r.hasNext()) {
                 r.next();
             }
 
             assertEquals(prepare(t1.getTransNum(),
-                                 "acquire %s database IS",
-                                 "acquire %s database/tables.testTable1 S"
-                                ), removeMetadataLogs(lockManager.log));
+                    "acquire %s database IS",
+                    "acquire %s database/tables.testTable1 S"
+            ), removeMetadataLogs(lockManager.log));
         }
     }
 
@@ -341,16 +348,16 @@ public class TestDatabaseLocking {
 
         lockManager.startLog();
 
-        try(Transaction t1 = beginTransaction()) {
+        try (Transaction t1 = beginTransaction()) {
             Iterator<Record> r = t1.getTransactionContext().sortedScan(tableName, "int");
             while (r.hasNext()) {
                 r.next();
             }
 
             assertEquals(prepare(t1.getTransNum(),
-                                 "acquire %s database IS",
-                                 "acquire %s database/tables.testTable1 S"
-                                ), removeMetadataLogs(lockManager.log).subList(0, 2));
+                    "acquire %s database IS",
+                    "acquire %s database/tables.testTable1 S"
+            ), removeMetadataLogs(lockManager.log).subList(0, 2));
         }
     }
 
@@ -370,7 +377,7 @@ public class TestDatabaseLocking {
         List<RecordId> rids = createTableWithIndices(tableName, 1, Arrays.asList("int1", "int2"));
 
         lockManager.startLog();
-        try(Transaction t1 = beginTransaction()) {
+        try (Transaction t1 = beginTransaction()) {
             Iterator<Record> r = t1.getTransactionContext().sortedScan(tableName, "int1");
             while (r.hasNext()) {
                 r.next();
@@ -378,28 +385,28 @@ public class TestDatabaseLocking {
             List<String> log = removeMetadataLogs(lockManager.log);
             assertEquals(3, log.size());
             assertEquals(prepare(t1.getTransNum(),
-                                 "acquire %s database IS",
-                                 "acquire %s database/tables.testTable1 S",
-                                 "acquire %s database/indices.testTable1,int1 S"
-                                ), log);
+                    "acquire %s database IS",
+                    "acquire %s database/tables.testTable1 S",
+                    "acquire %s database/indices.testTable1,int1 S"
+            ), log);
         } finally {
             this.db.waitAllTransactions();
         }
 
         lockManager.clearLog();
-        try(Transaction t2 = beginTransaction()) {
+        try (Transaction t2 = beginTransaction()) {
             Iterator<Record> r = t2.getTransactionContext().sortedScanFrom(tableName, "int2",
-                                 new IntDataBox(rids.size() / 2));
+                    new IntDataBox(rids.size() / 2));
             while (r.hasNext()) {
                 r.next();
             }
             List<String> log = removeMetadataLogs(lockManager.log);
             assertEquals(3, log.size());
             assertEquals(prepare(t2.getTransNum(),
-                                 "acquire %s database IS",
-                                 "acquire %s database/tables.testTable1 S",
-                                 "acquire %s database/indices.testTable1,int2 S"
-                                ), log);
+                    "acquire %s database IS",
+                    "acquire %s database/tables.testTable1 S",
+                    "acquire %s database/indices.testTable1,int2 S"
+            ), log);
         }
     }
 
@@ -410,23 +417,23 @@ public class TestDatabaseLocking {
         List<RecordId> rids = createTableWithIndices(tableName, 1, Arrays.asList("int1", "int2"));
 
         lockManager.startLog();
-        try(Transaction t1 = beginTransaction()) {
+        try (Transaction t1 = beginTransaction()) {
             t1.getTransactionContext().lookupKey(tableName, "int1", new IntDataBox(rids.size() / 2));
             assertEquals(prepare(t1.getTransNum(),
-                                 "acquire %s database IS",
-                                 "acquire %s database/indices.testTable1,int1 S"
-                                ), removeMetadataLogs(lockManager.log));
+                    "acquire %s database IS",
+                    "acquire %s database/indices.testTable1,int1 S"
+            ), removeMetadataLogs(lockManager.log));
         } finally {
             this.db.waitAllTransactions();
         }
 
         lockManager.clearLog();
-        try(Transaction t2 = beginTransaction()) {
+        try (Transaction t2 = beginTransaction()) {
             t2.getTransactionContext().contains(tableName, "int2", new IntDataBox(rids.size() / 2 - 1));
             assertEquals(prepare(t2.getTransNum(),
-                                 "acquire %s database IS",
-                                 "acquire %s database/indices.testTable1,int2 S"
-                                ), removeMetadataLogs(lockManager.log));
+                    "acquire %s database IS",
+                    "acquire %s database/indices.testTable1,int2 S"
+            ), removeMetadataLogs(lockManager.log));
         }
     }
 
@@ -443,16 +450,16 @@ public class TestDatabaseLocking {
         db.waitAllTransactions();
         lockManager.startLog();
 
-        try(Transaction t0 = beginTransaction()) {
+        try (Transaction t0 = beginTransaction()) {
             QueryPlan q = t0.query(tableName);
             q.select("int1", PredicateOperator.EQUALS, new IntDataBox(2));
             q.project(Collections.singletonList("int2"));
             q.execute();
 
             assertEquals(prepare(t0.getTransNum(),
-                                 "acquire %s database IS",
-                                 "acquire %s database/indices.testTable1,int1 S"
-                                ), removeMetadataLogs(lockManager.log));
+                    "acquire %s database IS",
+                    "acquire %s database/indices.testTable1,int1 S"
+            ), removeMetadataLogs(lockManager.log));
         }
     }
 
@@ -483,7 +490,7 @@ public class TestDatabaseLocking {
 
         lockManager.startLog();
 
-        try(Transaction t0 = beginTransaction()) {
+        try (Transaction t0 = beginTransaction()) {
             t0.getTransactionContext().getRecord(tableName, rids.get(0));
             t0.getTransactionContext().getRecord(tableName, rids.get(rids.size() / 5));
             t0.getTransactionContext().getRecord(tableName, rids.get(rids.size() / 5 * 2));
@@ -491,16 +498,16 @@ public class TestDatabaseLocking {
             t0.getTransactionContext().getRecord(tableName, rids.get(rids.size() - 1));
 
             assertEquals(prepare(t0.getTransNum(),
-                                 "acquire %s database IS",
-                                 "acquire %s database/tables.testTable1 IS",
-                                 "acquire %s database/tables.testTable1/30000000001 S",
-                                 "acquire %s database/tables.testTable1/30000000004 S",
-                                 "acquire %s database/tables.testTable1/30000000008 S",
-                                 "acquire %s database/tables.testTable1/30000000011 S",
-                                 "acquire-and-release %s database/tables.testTable1 S [database/tables.testTable1, " +
-                                 "database/tables.testTable1/30000000001, database/tables.testTable1/30000000004, " +
-                                 "database/tables.testTable1/30000000008, database/tables.testTable1/30000000011]"
-                                ), removeMetadataLogs(lockManager.log));
+                    "acquire %s database IS",
+                    "acquire %s database/tables.testTable1 IS",
+                    "acquire %s database/tables.testTable1/30000000001 S",
+                    "acquire %s database/tables.testTable1/30000000004 S",
+                    "acquire %s database/tables.testTable1/30000000008 S",
+                    "acquire %s database/tables.testTable1/30000000011 S",
+                    "acquire-and-release %s database/tables.testTable1 S [database/tables.testTable1, " +
+                            "database/tables.testTable1/30000000001, database/tables.testTable1/30000000004, " +
+                            "database/tables.testTable1/30000000008, database/tables.testTable1/30000000011]"
+            ), removeMetadataLogs(lockManager.log));
         }
     }
 
@@ -513,7 +520,7 @@ public class TestDatabaseLocking {
 
         lockManager.startLog();
 
-        try(Transaction t0 = beginTransaction()) {
+        try (Transaction t0 = beginTransaction()) {
             t0.getTransactionContext().updateRecord(tableName, values, rids.get(0));
             t0.getTransactionContext().deleteRecord(tableName, rids.get(rids.size() / 5));
             t0.getTransactionContext().updateRecord(tableName, values, rids.get(rids.size() / 5 * 2));
@@ -521,16 +528,16 @@ public class TestDatabaseLocking {
             t0.getTransactionContext().updateRecord(tableName, values, rids.get(rids.size() - 1));
 
             assertEquals(prepare(t0.getTransNum(),
-                                 "acquire %s database IX",
-                                 "acquire %s database/tables.testTable1 IX",
-                                 "acquire %s database/tables.testTable1/30000000001 X",
-                                 "acquire %s database/tables.testTable1/30000000004 X",
-                                 "acquire %s database/tables.testTable1/30000000008 X",
-                                 "acquire %s database/tables.testTable1/30000000011 X",
-                                 "acquire-and-release %s database/tables.testTable1 X [database/tables.testTable1, " +
-                                 "database/tables.testTable1/30000000001, database/tables.testTable1/30000000004, " +
-                                 "database/tables.testTable1/30000000008, database/tables.testTable1/30000000011]"
-                                ), removeMetadataLogs(lockManager.log));
+                    "acquire %s database IX",
+                    "acquire %s database/tables.testTable1 IX",
+                    "acquire %s database/tables.testTable1/30000000001 X",
+                    "acquire %s database/tables.testTable1/30000000004 X",
+                    "acquire %s database/tables.testTable1/30000000008 X",
+                    "acquire %s database/tables.testTable1/30000000011 X",
+                    "acquire-and-release %s database/tables.testTable1 X [database/tables.testTable1, " +
+                            "database/tables.testTable1/30000000001, database/tables.testTable1/30000000004, " +
+                            "database/tables.testTable1/30000000008, database/tables.testTable1/30000000011]"
+            ), removeMetadataLogs(lockManager.log));
         }
     }
 
@@ -543,7 +550,7 @@ public class TestDatabaseLocking {
 
         lockManager.startLog();
 
-        try(Transaction t0 = beginTransaction()) {
+        try (Transaction t0 = beginTransaction()) {
             t0.getTransactionContext().getRecord(tableName, rids.get(0));
             t0.getTransactionContext().getRecord(tableName, rids.get(rids.size() / 5));
             t0.getTransactionContext().getRecord(tableName, rids.get(rids.size() / 5 * 2));
@@ -551,19 +558,19 @@ public class TestDatabaseLocking {
             t0.getTransactionContext().updateRecord(tableName, values, rids.get(rids.size() - 1));
 
             assertEquals(prepare(t0.getTransNum(),
-                                 "acquire %s database IS",
-                                 "acquire %s database/tables.testTable1 IS",
-                                 "acquire %s database/tables.testTable1/30000000001 S",
-                                 "acquire %s database/tables.testTable1/30000000004 S",
-                                 "acquire %s database/tables.testTable1/30000000008 S",
-                                 "acquire %s database/tables.testTable1/30000000011 S",
-                                 "acquire-and-release %s database/tables.testTable1 S [database/tables.testTable1, " +
-                                 "database/tables.testTable1/30000000001, database/tables.testTable1/30000000004, " +
-                                 "database/tables.testTable1/30000000008, database/tables.testTable1/30000000011]",
-                                 "promote %s database IX",
-                                 "acquire-and-release %s database/tables.testTable1 SIX [database/tables.testTable1]",
-                                 "acquire %s database/tables.testTable1/30000000018 X"
-                                ), removeMetadataLogs(lockManager.log));
+                    "acquire %s database IS",
+                    "acquire %s database/tables.testTable1 IS",
+                    "acquire %s database/tables.testTable1/30000000001 S",
+                    "acquire %s database/tables.testTable1/30000000004 S",
+                    "acquire %s database/tables.testTable1/30000000008 S",
+                    "acquire %s database/tables.testTable1/30000000011 S",
+                    "acquire-and-release %s database/tables.testTable1 S [database/tables.testTable1, " +
+                            "database/tables.testTable1/30000000001, database/tables.testTable1/30000000004, " +
+                            "database/tables.testTable1/30000000008, database/tables.testTable1/30000000011]",
+                    "promote %s database IX",
+                    "acquire-and-release %s database/tables.testTable1 SIX [database/tables.testTable1]",
+                    "acquire %s database/tables.testTable1/30000000018 X"
+            ), removeMetadataLogs(lockManager.log));
         }
     }
 
@@ -575,7 +582,7 @@ public class TestDatabaseLocking {
 
         lockManager.startLog();
 
-        try(Transaction t0 = beginTransaction()) {
+        try (Transaction t0 = beginTransaction()) {
             t0.getTransactionContext().getTable(tableName).disableAutoEscalate();
 
             t0.getTransactionContext().getRecord(tableName, rids.get(0));
@@ -585,14 +592,14 @@ public class TestDatabaseLocking {
             t0.getTransactionContext().getRecord(tableName, rids.get(rids.size() - 1));
 
             assertEquals(prepare(t0.getTransNum(),
-                                 "acquire %s database IS",
-                                 "acquire %s database/tables.testTable1 IS",
-                                 "acquire %s database/tables.testTable1/30000000001 S",
-                                 "acquire %s database/tables.testTable1/30000000004 S",
-                                 "acquire %s database/tables.testTable1/30000000008 S",
-                                 "acquire %s database/tables.testTable1/30000000011 S",
-                                 "acquire %s database/tables.testTable1/30000000018 S"
-                                ), removeMetadataLogs(lockManager.log));
+                    "acquire %s database IS",
+                    "acquire %s database/tables.testTable1 IS",
+                    "acquire %s database/tables.testTable1/30000000001 S",
+                    "acquire %s database/tables.testTable1/30000000004 S",
+                    "acquire %s database/tables.testTable1/30000000008 S",
+                    "acquire %s database/tables.testTable1/30000000011 S",
+                    "acquire %s database/tables.testTable1/30000000018 S"
+            ), removeMetadataLogs(lockManager.log));
         }
     }
 
@@ -603,16 +610,16 @@ public class TestDatabaseLocking {
 
         lockManager.startLog();
 
-        try(Transaction t = beginTransaction()) {
+        try (Transaction t = beginTransaction()) {
             TransactionContext.setTransaction(t.getTransactionContext());
 
             db.lockTableMetadata("tables.testTable1", LockType.S);
 
             assertEquals(prepare(t.getTransNum(),
-                                 "acquire %s database IS",
-                                 "acquire %s database/information_schema.tables IS",
-                                 "acquire %s database/information_schema.tables/10000000003 S"
-                                ), lockManager.log);
+                    "acquire %s database IS",
+                    "acquire %s database/information_schema.tables IS",
+                    "acquire %s database/information_schema.tables/10000000003 S"
+            ), lockManager.log);
 
             TransactionContext.unsetTransaction();
         }
@@ -621,16 +628,16 @@ public class TestDatabaseLocking {
         lockManager.clearLog();
         lockManager.startLog();
 
-        try(Transaction t = beginTransaction()) {
+        try (Transaction t = beginTransaction()) {
             TransactionContext.setTransaction(t.getTransactionContext());
 
             db.lockTableMetadata("tables.testTable1", LockType.X);
 
             assertEquals(prepare(t.getTransNum(),
-                                 "acquire %s database IX",
-                                 "acquire %s database/information_schema.tables IX",
-                                 "acquire %s database/information_schema.tables/10000000003 X"
-                                ), lockManager.log);
+                    "acquire %s database IX",
+                    "acquire %s database/information_schema.tables IX",
+                    "acquire %s database/information_schema.tables/10000000003 X"
+            ), lockManager.log);
 
             TransactionContext.unsetTransaction();
         }
@@ -643,16 +650,16 @@ public class TestDatabaseLocking {
 
         lockManager.startLog();
 
-        try(Transaction t = beginTransaction()) {
+        try (Transaction t = beginTransaction()) {
             TransactionContext.setTransaction(t.getTransactionContext());
 
             db.lockIndexMetadata("testTable1,int1", LockType.S);
 
             assertEquals(prepare(t.getTransNum(),
-                                 "acquire %s database IS",
-                                 "acquire %s database/information_schema.indices IS",
-                                 "acquire %s database/information_schema.indices/20000000001 S"
-                                ), lockManager.log);
+                    "acquire %s database IS",
+                    "acquire %s database/information_schema.indices IS",
+                    "acquire %s database/information_schema.indices/20000000001 S"
+            ), lockManager.log);
 
             TransactionContext.unsetTransaction();
         }
@@ -661,16 +668,16 @@ public class TestDatabaseLocking {
         lockManager.clearLog();
         lockManager.startLog();
 
-        try(Transaction t = beginTransaction()) {
+        try (Transaction t = beginTransaction()) {
             TransactionContext.setTransaction(t.getTransactionContext());
 
             db.lockIndexMetadata("testTable1,int1", LockType.X);
 
             assertEquals(prepare(t.getTransNum(),
-                                 "acquire %s database IX",
-                                 "acquire %s database/information_schema.indices IX",
-                                 "acquire %s database/information_schema.indices/20000000001 X"
-                                ), lockManager.log);
+                    "acquire %s database IX",
+                    "acquire %s database/information_schema.indices IX",
+                    "acquire %s database/information_schema.indices/20000000001 X"
+            ), lockManager.log);
 
             TransactionContext.unsetTransaction();
         }
@@ -682,23 +689,23 @@ public class TestDatabaseLocking {
         lockManager.startLog();
         lockManager.suppressStatus(true);
 
-        try(Transaction t = beginTransaction()) {
+        try (Transaction t = beginTransaction()) {
             try {
                 t.getTransactionContext().getSchema("badTable");
             } catch (DatabaseException e) { /* do nothing */ }
 
             assertEquals(prepare(t.getTransNum(),
-                                 "acquire %s database IX",
-                                 "acquire %s database/information_schema.tables IX",
-                                 "acquire %s database/information_schema.tables/10000000003 X"
-                                ), lockManager.log);
+                    "acquire %s database IX",
+                    "acquire %s database/information_schema.tables IX",
+                    "acquire %s database/information_schema.tables/10000000003 X"
+            ), lockManager.log);
         }
     }
 
     @Test
     @Category(PublicTests.class)
     public void testCreateTableSimple() {
-        try(Transaction t = beginTransaction()) {
+        try (Transaction t = beginTransaction()) {
             try {
                 t.getTransactionContext().getNumDataPages("testTable1");
             } catch (DatabaseException e) { /* do nothing */ }
@@ -708,13 +715,13 @@ public class TestDatabaseLocking {
         lockManager.startLog();
         createTable("testTable1", 4);
 
-        try(Transaction t = beginTransaction()) {
+        try (Transaction t = beginTransaction()) {
             assertSubsequence(prepare(t.getTransNum() - 1,
-                                      "acquire %s database IX",
-                                      "acquire %s database/information_schema.tables IX",
-                                      "acquire %s database/information_schema.tables/10000000003 X",
-                                      "acquire %s database/tables.testTable1 X"
-                                     ), lockManager.log);
+                    "acquire %s database IX",
+                    "acquire %s database/information_schema.tables IX",
+                    "acquire %s database/information_schema.tables/10000000003 X",
+                    "acquire %s database/tables.testTable1 X"
+            ), lockManager.log);
         }
     }
 
@@ -723,7 +730,7 @@ public class TestDatabaseLocking {
     public void testCreateIndexSimple() {
         createTableWithIndices("testTable1", 4, Collections.emptyList());
 
-        try(Transaction t = beginTransaction()) {
+        try (Transaction t = beginTransaction()) {
             try {
                 t.getTransactionContext().getTreeHeight("testTable1", "int1");
             } catch (DatabaseException e) { /* do nothing */ }
@@ -732,15 +739,15 @@ public class TestDatabaseLocking {
 
         lockManager.startLog();
 
-        try(Transaction t = beginTransaction()) {
+        try (Transaction t = beginTransaction()) {
             t.createIndex("testTable1", "int1", false);
             assertSubsequence(prepare(t.getTransNum(),
-                                      "acquire %s database/information_schema.tables IS",
-                                      "acquire %s database/information_schema.tables/10000000003 S",
-                                      "acquire %s database/information_schema.indices IX",
-                                      "acquire %s database/information_schema.indices/20000000001 X",
-                                      "acquire %s database/indices.testTable1,int1 X"
-                                     ), lockManager.log);
+                    "acquire %s database/information_schema.tables IS",
+                    "acquire %s database/information_schema.tables/10000000003 S",
+                    "acquire %s database/information_schema.indices IX",
+                    "acquire %s database/information_schema.indices/20000000001 X",
+                    "acquire %s database/indices.testTable1,int1 X"
+            ), lockManager.log);
         }
     }
 
@@ -752,15 +759,15 @@ public class TestDatabaseLocking {
         lockManager.startLog();
         lockManager.suppressStatus(true);
 
-        try(Transaction t0 = beginTransaction()) {
+        try (Transaction t0 = beginTransaction()) {
             t0.dropTable(tableName);
 
             assertEquals(prepare(t0.getTransNum(),
-                                 "acquire %s database IX",
-                                 "acquire %s database/information_schema.tables IX",
-                                 "acquire %s database/information_schema.tables/10000000003 X",
-                                 "acquire %s database/tables.testTable1 X"
-                                ), lockManager.log);
+                    "acquire %s database IX",
+                    "acquire %s database/information_schema.tables IX",
+                    "acquire %s database/information_schema.tables/10000000003 X",
+                    "acquire %s database/tables.testTable1 X"
+            ), lockManager.log);
         }
     }
 
@@ -771,15 +778,15 @@ public class TestDatabaseLocking {
         lockManager.startLog();
         lockManager.suppressStatus(true);
 
-        try(Transaction t0 = beginTransaction()) {
+        try (Transaction t0 = beginTransaction()) {
             t0.dropIndex("testTable1", "int1");
 
             assertSubsequence(prepare(t0.getTransNum(),
-                                      "acquire %s database IX",
-                                      "acquire %s database/information_schema.indices IX",
-                                      "acquire %s database/information_schema.indices/20000000001 X",
-                                      "acquire %s database/indices.testTable1,int1 X"
-                                     ), lockManager.log);
+                    "acquire %s database IX",
+                    "acquire %s database/information_schema.indices IX",
+                    "acquire %s database/information_schema.indices/20000000001 X",
+                    "acquire %s database/indices.testTable1,int1 X"
+            ), lockManager.log);
         }
     }
 
@@ -788,12 +795,12 @@ public class TestDatabaseLocking {
     public void testDropAllTables() {
         lockManager.startLog();
 
-        try(Transaction t0 = beginTransaction()) {
+        try (Transaction t0 = beginTransaction()) {
             t0.dropAllTables();
 
             assertEquals(prepare(t0.getTransNum(),
-                                 "acquire %s database X"
-                                ), lockManager.log);
+                    "acquire %s database X"
+            ), lockManager.log);
         }
     }
 }

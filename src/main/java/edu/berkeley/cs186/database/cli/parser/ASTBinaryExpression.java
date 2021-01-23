@@ -4,17 +4,17 @@ package edu.berkeley.cs186.database.cli.parser;
 
 public
 class ASTBinaryExpression extends SimpleNode {
-  public ASTBinaryExpression(int id) {
-    super(id);
-  }
+    public ASTBinaryExpression(int id) {
+        super(id);
+    }
 
-  public ASTBinaryExpression(MoocParser p, int id) {
-    super(p, id);
-  }
+    public ASTBinaryExpression(MoocParser p, int id) {
+        super(p, id);
+    }
 
-  /** Accept the visitor. **/
-  public void jjtAccept(MoocParserVisitor visitor, Object data) {
-    visitor.visit(this, data);
-  }
+    /** Accept the visitor. **/
+    public void jjtAccept(MoocParserVisitor visitor, Object data) {
+        visitor.visit(this, data);
+    }
 }
 /* JavaCC - OriginalChecksum=6167f46fc9f7de9bb115f38145fee0fe (do not edit this line) */

@@ -1,47 +1,40 @@
 package edu.berkeley.cs186.database.table;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.fail;
+import edu.berkeley.cs186.database.DatabaseException;
+import edu.berkeley.cs186.database.categories.Proj99Tests;
+import edu.berkeley.cs186.database.categories.SystemTests;
+import edu.berkeley.cs186.database.common.ByteBuffer;
+import edu.berkeley.cs186.database.databox.*;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.Arrays;
 import java.util.List;
 
-import edu.berkeley.cs186.database.categories.*;
-import org.junit.Test;
-
-import edu.berkeley.cs186.database.DatabaseException;
-import edu.berkeley.cs186.database.common.ByteBuffer;
-import edu.berkeley.cs186.database.databox.BoolDataBox;
-import edu.berkeley.cs186.database.databox.DataBox;
-import edu.berkeley.cs186.database.databox.FloatDataBox;
-import edu.berkeley.cs186.database.databox.IntDataBox;
-import edu.berkeley.cs186.database.databox.StringDataBox;
-import edu.berkeley.cs186.database.databox.Type;
-import org.junit.experimental.categories.Category;
+import static org.junit.Assert.*;
 
 @Category({Proj99Tests.class, SystemTests.class})
 public class TestSchema {
     @Test
     public void testSizeInBytes() {
         Schema[] schemas = {
-            // Single column.
-            new Schema(Arrays.asList("x"), Arrays.asList(Type.boolType())),
-            new Schema(Arrays.asList("x"), Arrays.asList(Type.intType())),
-            new Schema(Arrays.asList("x"), Arrays.asList(Type.floatType())),
-            new Schema(Arrays.asList("x"), Arrays.asList(Type.stringType(1))),
-            new Schema(Arrays.asList("x"), Arrays.asList(Type.stringType(10))),
+                // Single column.
+                new Schema(Arrays.asList("x"), Arrays.asList(Type.boolType())),
+                new Schema(Arrays.asList("x"), Arrays.asList(Type.intType())),
+                new Schema(Arrays.asList("x"), Arrays.asList(Type.floatType())),
+                new Schema(Arrays.asList("x"), Arrays.asList(Type.stringType(1))),
+                new Schema(Arrays.asList("x"), Arrays.asList(Type.stringType(10))),
 
-            // Multiple columns.
-            new Schema(Arrays.asList("x", "y", "z"),
-                       Arrays.asList(Type.boolType(), Type.intType(), Type.floatType())),
-            new Schema(Arrays.asList("x", "y"),
-                       Arrays.asList(Type.boolType(), Type.stringType(42))),
+                // Multiple columns.
+                new Schema(Arrays.asList("x", "y", "z"),
+                        Arrays.asList(Type.boolType(), Type.intType(), Type.floatType())),
+                new Schema(Arrays.asList("x", "y"),
+                        Arrays.asList(Type.boolType(), Type.stringType(42))),
         };
 
         int[] expectedSizes = {1, 4, 4, 1, 10, 9, 43};
 
-        assert(schemas.length == expectedSizes.length);
+        assert (schemas.length == expectedSizes.length);
         for (int i = 0; i < schemas.length; ++i) {
             assertEquals(expectedSizes[i], schemas[i].getSizeInBytes());
         }
@@ -51,23 +44,23 @@ public class TestSchema {
     public void testVerifyValidRecords() {
         try {
             Schema[] schemas = {
-                new Schema(Arrays.asList(), Arrays.asList()),
-                new Schema(Arrays.asList("x"), Arrays.asList(Type.boolType())),
-                new Schema(Arrays.asList("x"), Arrays.asList(Type.intType())),
-                new Schema(Arrays.asList("x"), Arrays.asList(Type.floatType())),
-                new Schema(Arrays.asList("x"), Arrays.asList(Type.stringType(1))),
-                new Schema(Arrays.asList("x"), Arrays.asList(Type.stringType(2))),
+                    new Schema(Arrays.asList(), Arrays.asList()),
+                    new Schema(Arrays.asList("x"), Arrays.asList(Type.boolType())),
+                    new Schema(Arrays.asList("x"), Arrays.asList(Type.intType())),
+                    new Schema(Arrays.asList("x"), Arrays.asList(Type.floatType())),
+                    new Schema(Arrays.asList("x"), Arrays.asList(Type.stringType(1))),
+                    new Schema(Arrays.asList("x"), Arrays.asList(Type.stringType(2))),
             };
             List<List<DataBox>> values = Arrays.asList(
-                                             Arrays.asList(),
-                                             Arrays.asList(new BoolDataBox(false)),
-                                             Arrays.asList(new IntDataBox(0)),
-                                             Arrays.asList(new FloatDataBox(0f)),
-                                             Arrays.asList(new StringDataBox("a", 1)),
-                                             Arrays.asList(new StringDataBox("ab", 2))
-                                         );
+                    Arrays.asList(),
+                    Arrays.asList(new BoolDataBox(false)),
+                    Arrays.asList(new IntDataBox(0)),
+                    Arrays.asList(new FloatDataBox(0f)),
+                    Arrays.asList(new StringDataBox("a", 1)),
+                    Arrays.asList(new StringDataBox("ab", 2))
+            );
 
-            assert(schemas.length == values.size());
+            assert (schemas.length == values.size());
             for (int i = 0; i < schemas.length; ++i) {
                 Schema s = schemas[i];
                 List<DataBox> v = values.get(i);
@@ -95,18 +88,18 @@ public class TestSchema {
     @Test
     public void testToAndFromBytes() {
         Schema[] schemas = {
-            // Single column.
-            new Schema(Arrays.asList("x"), Arrays.asList(Type.boolType())),
-            new Schema(Arrays.asList("x"), Arrays.asList(Type.intType())),
-            new Schema(Arrays.asList("x"), Arrays.asList(Type.floatType())),
-            new Schema(Arrays.asList("x"), Arrays.asList(Type.stringType(1))),
-            new Schema(Arrays.asList("x"), Arrays.asList(Type.stringType(10))),
+                // Single column.
+                new Schema(Arrays.asList("x"), Arrays.asList(Type.boolType())),
+                new Schema(Arrays.asList("x"), Arrays.asList(Type.intType())),
+                new Schema(Arrays.asList("x"), Arrays.asList(Type.floatType())),
+                new Schema(Arrays.asList("x"), Arrays.asList(Type.stringType(1))),
+                new Schema(Arrays.asList("x"), Arrays.asList(Type.stringType(10))),
 
-            // Multiple columns.
-            new Schema(Arrays.asList("x", "y", "z"),
-                       Arrays.asList(Type.boolType(), Type.intType(), Type.floatType())),
-            new Schema(Arrays.asList("x", "y"),
-                       Arrays.asList(Type.boolType(), Type.stringType(42))),
+                // Multiple columns.
+                new Schema(Arrays.asList("x", "y", "z"),
+                        Arrays.asList(Type.boolType(), Type.intType(), Type.floatType())),
+                new Schema(Arrays.asList("x", "y"),
+                        Arrays.asList(Type.boolType(), Type.stringType(42))),
         };
 
         for (Schema schema : schemas) {

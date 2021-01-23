@@ -10,7 +10,10 @@ import edu.berkeley.cs186.database.io.DiskSpaceManagerImpl;
 import edu.berkeley.cs186.database.memory.BufferManager;
 import edu.berkeley.cs186.database.memory.BufferManagerImpl;
 import edu.berkeley.cs186.database.memory.LRUEvictionPolicy;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
@@ -36,7 +39,7 @@ public class TestARIESStudent {
     // 1 second per test
     @Rule
     public TestRule globalTimeout = new DisableOnDebug(Timeout.millis((long) (
-                1000 * TimeoutScaling.factor)));
+            1000 * TimeoutScaling.factor)));
 
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
@@ -46,11 +49,13 @@ public class TestARIESStudent {
         testDir = tempFolder.newFolder("test-dir").getAbsolutePath();
         recoveryManager = loadRecoveryManager(testDir);
         DummyTransaction.cleanupTransactions();
-        LogRecord.onRedoHandler(t -> {});
+        LogRecord.onRedoHandler(t -> {
+        });
     }
 
     @After
-    public void cleanup() throws Exception {}
+    public void cleanup() throws Exception {
+    }
 
     @Test
     public void testStudentAnalysis() throws Exception {
@@ -133,7 +138,8 @@ public class TestARIESStudent {
      */
     private void finishRedoChecks() {
         assertTrue("LogRecord#redo() not called enough times", redoMethods.isEmpty());
-        LogRecord.onRedoHandler(record -> {});
+        LogRecord.onRedoHandler(record -> {
+        });
     }
 
     /**
@@ -143,8 +149,8 @@ public class TestARIESStudent {
      */
     protected RecoveryManager loadRecoveryManager(String dir) throws Exception {
         RecoveryManager recoveryManager = new ARIESRecoveryManagerNoLocking(
-            new DummyLockContext(new Pair<>("database", 0L)),
-            DummyTransaction::create
+                new DummyLockContext(new Pair<>("database", 0L)),
+                DummyTransaction::create
         );
         DiskSpaceManager diskSpaceManager = new DiskSpaceManagerImpl(dir, recoveryManager);
         BufferManager bufferManager = new BufferManagerImpl(diskSpaceManager, recoveryManager, 32,
@@ -208,7 +214,7 @@ public class TestARIESStudent {
     }
 
     protected Map<Long, TransactionTableEntry> getTransactionTable(RecoveryManager recoveryManager)
-    throws Exception {
+            throws Exception {
         return ((ARIESRecoveryManager) recoveryManager).transactionTable;
     }
 

@@ -47,24 +47,24 @@ public class EndCheckpointLogRecord extends LogRecord {
     @Override
     public byte[] toBytes() {
         int recordSize = getRecordSize(dirtyPageTable.size(), transactionTable.size(), touchedPages.size(),
-                                       numTouchedPages);
+                numTouchedPages);
         byte[] b = new byte[recordSize];
         Buffer buf = ByteBuffer.wrap(b)
-                     .put((byte) getType().getValue())
-                     .putShort((short) dirtyPageTable.size())
-                     .putShort((short) transactionTable.size())
-                     .putShort((short) touchedPages.size());
+                .put((byte) getType().getValue())
+                .putShort((short) dirtyPageTable.size())
+                .putShort((short) transactionTable.size())
+                .putShort((short) touchedPages.size());
         for (Map.Entry<Long, Long> entry : dirtyPageTable.entrySet()) {
             buf.putLong(entry.getKey()).putLong(entry.getValue());
         }
         for (Map.Entry<Long, Pair<Transaction.Status, Long>> entry : transactionTable.entrySet()) {
             buf.putLong(entry.getKey())
-            .put((byte) entry.getValue().getFirst().ordinal())
-            .putLong(entry.getValue().getSecond());
+                    .put((byte) entry.getValue().getFirst().ordinal())
+                    .putLong(entry.getValue().getSecond());
         }
         for (Map.Entry<Long, List<Long>> entry : touchedPages.entrySet()) {
             buf.putLong(entry.getKey())
-            .putShort((short) entry.getValue().size());
+                    .putShort((short) entry.getValue().size());
             for (Long pageNum : entry.getValue()) {
                 buf.putLong(pageNum);
             }
@@ -81,7 +81,7 @@ public class EndCheckpointLogRecord extends LogRecord {
         // xact: long -> (byte, long) (17 bytes)
         // touched pages: long -> (short (size) + longs) (10 bytes + 8 bytes per page)
         return 7 + 16 * numDPTRecords + 17 * numTxnTableRecords + 10 * touchedPagesMapSize + 8 *
-               numTouchedPages;
+                numTouchedPages;
     }
 
     /**
@@ -91,7 +91,7 @@ public class EndCheckpointLogRecord extends LogRecord {
     public static boolean fitsInOneRecord(int numDPTRecords, int numTxnTableRecords,
                                           int touchedPagesMapSize, int numTouchedPages) {
         int recordSize = getRecordSize(numDPTRecords, numTxnTableRecords, touchedPagesMapSize,
-                                       numTouchedPages);
+                numTouchedPages);
         return recordSize <= DiskSpaceManager.PAGE_SIZE;
     }
 
@@ -125,13 +125,19 @@ public class EndCheckpointLogRecord extends LogRecord {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (o == null || getClass() != o.getClass()) { return false; }
-        if (!super.equals(o)) { return false; }
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         EndCheckpointLogRecord that = (EndCheckpointLogRecord) o;
         return dirtyPageTable.equals(that.dirtyPageTable) &&
-               transactionTable.equals(that.transactionTable) &&
-               touchedPages.equals(that.touchedPages);
+                transactionTable.equals(that.transactionTable) &&
+                touchedPages.equals(that.touchedPages);
     }
 
     @Override
@@ -142,10 +148,10 @@ public class EndCheckpointLogRecord extends LogRecord {
     @Override
     public String toString() {
         return "EndCheckpointLogRecord{" +
-               "dirtyPageTable=" + dirtyPageTable +
-               ", transactionTable=" + transactionTable +
-               ", touchedPages=" + touchedPages +
-               ", LSN=" + LSN +
-               '}';
+                "dirtyPageTable=" + dirtyPageTable +
+                ", transactionTable=" + transactionTable +
+                ", touchedPages=" + touchedPages +
+                ", LSN=" + LSN +
+                '}';
     }
 }

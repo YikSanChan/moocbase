@@ -1,12 +1,12 @@
 package edu.berkeley.cs186.database.memory;
 
-import java.util.Iterator;
-import java.util.List;
-
 import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.Schema;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class NaiveHashPartition {
     private String tempTableName;
@@ -58,6 +58,7 @@ public class NaiveHashPartition {
             this.addRecord(record);
         }
     }
+
     /**
      * Returns an iterator over all of the records that were written to this partition
      * @return an iterator over all the records in this partition

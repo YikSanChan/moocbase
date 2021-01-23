@@ -8,7 +8,6 @@ import edu.berkeley.cs186.database.concurrency.LockType;
 import edu.berkeley.cs186.database.concurrency.LockUtil;
 import edu.berkeley.cs186.database.io.DiskSpaceManager;
 import edu.berkeley.cs186.database.memory.BufferManager;
-import edu.berkeley.cs186.database.memory.Page;
 import edu.berkeley.cs186.database.recovery.records.*;
 
 import java.util.*;
@@ -422,10 +421,10 @@ public class ARIESRecoveryManager implements RecoveryManager {
                 boolean fitsAfterAdd;
                 if (!touchedPages.containsKey(transNum)) {
                     fitsAfterAdd = EndCheckpointLogRecord.fitsInOneRecord(
-                                       dpt.size(), txnTable.size(), touchedPages.size() + 1, numTouchedPages + 1);
+                            dpt.size(), txnTable.size(), touchedPages.size() + 1, numTouchedPages + 1);
                 } else {
                     fitsAfterAdd = EndCheckpointLogRecord.fitsInOneRecord(
-                                       dpt.size(), txnTable.size(), touchedPages.size(), numTouchedPages + 1);
+                            dpt.size(), txnTable.size(), touchedPages.size(), numTouchedPages + 1);
                 }
 
                 if (!fitsAfterAdd) {
@@ -479,7 +478,8 @@ public class ARIESRecoveryManager implements RecoveryManager {
     @Override
     public Runnable restart() {
         // TODO(proj5): implement
-        return () -> {};
+        return () -> {
+        };
     }
 
     /**
@@ -546,7 +546,6 @@ public class ARIESRecoveryManager implements RecoveryManager {
 
     /**
      * This method performs the redo pass of restart recovery.
-
      * First, a priority queue is created sorted on lastLSN of all aborting transactions.
      *
      * Then, always working on the largest LSN in the priority queue until we are done,
@@ -601,7 +600,7 @@ public class ARIESRecoveryManager implements RecoveryManager {
                 LockUtil.ensureSufficientLockHeld(lockContext, lockType);
             } else {
                 lockRequests.add("request " + transactionContext.getTransNum() + " " + lockType + "(" +
-                                 lockContext.getResourceName() + ")");
+                        lockContext.getResourceName() + ")");
             }
         } finally {
             TransactionContext.unsetTransaction();
@@ -612,7 +611,7 @@ public class ARIESRecoveryManager implements RecoveryManager {
      * Comparator for Pair<A, B> comparing only on the first element (type A), in reverse order.
      */
     private static class PairFirstReverseComparator<A extends Comparable<A>, B> implements
-        Comparator<Pair<A, B>> {
+            Comparator<Pair<A, B>> {
         @Override
         public int compare(Pair<A, B> p0, Pair<A, B> p1) {
             return p1.getFirst().compareTo(p0.getFirst());

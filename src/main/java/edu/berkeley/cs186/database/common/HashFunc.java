@@ -1,11 +1,13 @@
 package edu.berkeley.cs186.database.common;
 
-import java.util.function.Function;
 import edu.berkeley.cs186.database.databox.DataBox;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Random;;
+import java.util.Random;
+import java.util.function.Function;
+
+;
 
 public class HashFunc {
     private static BigInteger p = BigInteger.valueOf(18618618661L); // Arbitrary prime > 32 bits
@@ -13,10 +15,12 @@ public class HashFunc {
     private static Random generator = new Random();
 
     public static Function<DataBox, Integer> getHashFunction(int pass) {
-        assert(pass >= 1);
+        assert (pass >= 1);
         if (pass == 1) {
             // First pass just uses regular hash function
-            return (DataBox d) -> { return d.hashCode();};
+            return (DataBox d) -> {
+                return d.hashCode();
+            };
         }
         // Future passes select a random fine-grain hash function
         generator.setSeed(pass);

@@ -1,12 +1,13 @@
 package edu.berkeley.cs186.database.cli.visitor;
 
+import edu.berkeley.cs186.database.Transaction;
+import edu.berkeley.cs186.database.cli.PrettyPrinter;
+import edu.berkeley.cs186.database.cli.parser.ASTLiteral;
+import edu.berkeley.cs186.database.cli.parser.ASTTableName;
+import edu.berkeley.cs186.database.databox.DataBox;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import edu.berkeley.cs186.database.Transaction;
-import edu.berkeley.cs186.database.databox.DataBox;
-import edu.berkeley.cs186.database.cli.PrettyPrinter;
-import edu.berkeley.cs186.database.cli.parser.*;
 
 public class InsertStatementVisitor extends StatementVisitor {
     public String tableName;

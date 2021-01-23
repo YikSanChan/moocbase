@@ -4,17 +4,17 @@ package edu.berkeley.cs186.database.cli.parser;
 
 public
 class ASTFromClause extends SimpleNode {
-  public ASTFromClause(int id) {
-    super(id);
-  }
+    public ASTFromClause(int id) {
+        super(id);
+    }
 
-  public ASTFromClause(MoocParser p, int id) {
-    super(p, id);
-  }
+    public ASTFromClause(MoocParser p, int id) {
+        super(p, id);
+    }
 
-  /** Accept the visitor. **/
-  public void jjtAccept(MoocParserVisitor visitor, Object data) {
-    visitor.visit(this, data);
-  }
+    /** Accept the visitor. **/
+    public void jjtAccept(MoocParserVisitor visitor, Object data) {
+        visitor.visit(this, data);
+    }
 }
 /* JavaCC - OriginalChecksum=104284e27bca0bde7271b1b9990e95aa (do not edit this line) */

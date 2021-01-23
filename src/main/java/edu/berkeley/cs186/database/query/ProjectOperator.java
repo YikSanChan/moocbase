@@ -1,19 +1,15 @@
 package edu.berkeley.cs186.database.query;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-
-import edu.berkeley.cs186.database.databox.DataBox;
-import edu.berkeley.cs186.database.databox.FloatDataBox;
-import edu.berkeley.cs186.database.databox.IntDataBox;
-import edu.berkeley.cs186.database.databox.Type;
-import edu.berkeley.cs186.database.databox.TypeId;
+import edu.berkeley.cs186.database.databox.*;
 import edu.berkeley.cs186.database.table.MarkerRecord;
 import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.Schema;
 import edu.berkeley.cs186.database.table.stats.TableStats;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 class ProjectOperator extends QueryOperator {
     private List<String> columns;
@@ -91,7 +87,7 @@ class ProjectOperator extends QueryOperator {
             if (!(sourceColumnTypes.get(this.sumColumnIndex).getTypeId() == TypeId.INT) &&
                     !(sourceColumnTypes.get(this.sumColumnIndex).getTypeId() == TypeId.FLOAT)) {
                 throw new QueryPlanException("Cannot compute sum over a non-integer column: " + this.sumColumn +
-                                             ".");
+                        ".");
             }
         }
         if (this.averageColumn != null) {
@@ -100,7 +96,7 @@ class ProjectOperator extends QueryOperator {
             if (!(sourceColumnTypes.get(this.averageColumnIndex).getTypeId() == TypeId.INT) &&
                     !(sourceColumnTypes.get(this.sumColumnIndex).getTypeId() == TypeId.FLOAT)) {
                 throw new QueryPlanException("Cannot compute sum over a non-integer column: " + this.averageColumn +
-                                             ".");
+                        ".");
             }
         }
 
@@ -130,7 +126,9 @@ class ProjectOperator extends QueryOperator {
     }
 
     @Override
-    public Iterator<Record> iterator() { return new ProjectIterator(); }
+    public Iterator<Record> iterator() {
+        return new ProjectIterator();
+    }
 
     private void addToCount() {
         this.countValue++;
@@ -166,7 +164,7 @@ class ProjectOperator extends QueryOperator {
             return 0f;
         }
 
-        double result =  this.averageSumValue / this.averageCountValue;
+        double result = this.averageSumValue / this.averageCountValue;
         this.averageSumValue = 0;
         this.averageCountValue = 0;
         return result;
@@ -175,7 +173,7 @@ class ProjectOperator extends QueryOperator {
     @Override
     public String str() {
         return "type: " + this.getType() + " (cost: " + this.getIOCost() + ")" +
-               "\ncolumns: " + this.columns;
+                "\ncolumns: " + this.columns;
     }
 
     /**

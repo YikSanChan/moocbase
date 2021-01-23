@@ -1,5 +1,11 @@
 package edu.berkeley.cs186.database.cli;
 
+import edu.berkeley.cs186.database.Database;
+import edu.berkeley.cs186.database.DatabaseException;
+import edu.berkeley.cs186.database.Transaction;
+import edu.berkeley.cs186.database.databox.*;
+import edu.berkeley.cs186.database.table.Schema;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -7,26 +13,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.berkeley.cs186.database.Database;
-import edu.berkeley.cs186.database.DatabaseException;
-import edu.berkeley.cs186.database.Transaction;
-import edu.berkeley.cs186.database.concurrency.LockManager;
-import edu.berkeley.cs186.database.databox.DataBox;
-import edu.berkeley.cs186.database.databox.FloatDataBox;
-import edu.berkeley.cs186.database.databox.IntDataBox;
-import edu.berkeley.cs186.database.databox.StringDataBox;
-import edu.berkeley.cs186.database.databox.Type;
-import edu.berkeley.cs186.database.memory.ClockEvictionPolicy;
-import edu.berkeley.cs186.database.table.Schema;
-
 public class ExampleLoader {
     public static Database setupDatabase() throws IOException {
         // Basic database for project 1 through 3
         Database database = new Database("demo", 25);
-        
+
         // Use the following after completing project 4 (locking)
         // Database database = new Database("demo", 25, new LockManager());
-        
+
         // Use the following after completing project 5 (recovery)
         // Database database = new Database("demo", 25, new LockManager(), new ClockEvictionPolicy(), true);
         database.setWorkMem(5); // B=5
@@ -47,7 +41,7 @@ public class ExampleLoader {
 
         Schema studentSchema = new Schema(studentSchemaNames, studentSchemaTypes);
 
-        try(Transaction t = database.beginTransaction()) {
+        try (Transaction t = database.beginTransaction()) {
             try {
                 t.createTable(studentSchema, "Students");
             } catch (DatabaseException e) {
@@ -87,7 +81,7 @@ public class ExampleLoader {
             }
         }
 
-        try(Transaction transaction = database.beginTransaction()) {
+        try (Transaction transaction = database.beginTransaction()) {
             // read student tuples
             List<String> studentLines = Files.readAllLines(Paths.get("data", "Students.csv"), Charset.defaultCharset());
 
@@ -117,7 +111,7 @@ public class ExampleLoader {
             }
 
             List<String> enrollmentLines = Files.readAllLines(Paths.get("data", "Enrollments.csv"),
-                                        Charset.defaultCharset());
+                    Charset.defaultCharset());
 
             for (String line : enrollmentLines) {
                 String[] splits = line.split(",");

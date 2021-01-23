@@ -12,7 +12,10 @@ import edu.berkeley.cs186.database.memory.ClockEvictionPolicy;
 import edu.berkeley.cs186.database.memory.Page;
 import edu.berkeley.cs186.database.recovery.DummyRecoveryManager;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Heap file implementation that is entirely in memory. Not thread safe.
@@ -67,7 +70,7 @@ public class MemoryHeapFile implements HeapFile, AutoCloseable {
         pageNums.add(page.getPageNum());
         pages.put(page.getPageNum(), page);
         freeSpace.put(page.getPageNum(),
-                      (short)  (getEffectivePageSize() - emptyPageMetadataSize - requiredSpace));
+                (short) (getEffectivePageSize() - emptyPageMetadataSize - requiredSpace));
         ++numDataPages;
         return page;
     }

@@ -22,7 +22,8 @@ public abstract class LogRecord {
     protected LogType type;
 
     // method called when redo() is called - only used for testing
-    private static Consumer<LogRecord> onRedo = t -> {};
+    private static Consumer<LogRecord> onRedo = t -> {
+    };
 
     protected LogRecord(LogType type) {
         this.type = type;
@@ -185,40 +186,40 @@ public abstract class LogRecord {
             return Optional.empty();
         }
         switch (LogType.fromInt(type)) {
-        case MASTER:
-            return MasterLogRecord.fromBytes(buf);
-        case ALLOC_PAGE:
-            return AllocPageLogRecord.fromBytes(buf);
-        case UPDATE_PAGE:
-            return UpdatePageLogRecord.fromBytes(buf);
-        case FREE_PAGE:
-            return FreePageLogRecord.fromBytes(buf);
-        case ALLOC_PART:
-            return AllocPartLogRecord.fromBytes(buf);
-        case FREE_PART:
-            return FreePartLogRecord.fromBytes(buf);
-        case COMMIT_TRANSACTION:
-            return CommitTransactionLogRecord.fromBytes(buf);
-        case ABORT_TRANSACTION:
-            return AbortTransactionLogRecord.fromBytes(buf);
-        case END_TRANSACTION:
-            return EndTransactionLogRecord.fromBytes(buf);
-        case BEGIN_CHECKPOINT:
-            return BeginCheckpointLogRecord.fromBytes(buf);
-        case END_CHECKPOINT:
-            return EndCheckpointLogRecord.fromBytes(buf);
-        case UNDO_ALLOC_PAGE:
-            return UndoAllocPageLogRecord.fromBytes(buf);
-        case UNDO_UPDATE_PAGE:
-            return UndoUpdatePageLogRecord.fromBytes(buf);
-        case UNDO_FREE_PAGE:
-            return UndoFreePageLogRecord.fromBytes(buf);
-        case UNDO_ALLOC_PART:
-            return UndoAllocPartLogRecord.fromBytes(buf);
-        case UNDO_FREE_PART:
-            return UndoFreePartLogRecord.fromBytes(buf);
-        default:
-            throw new UnsupportedOperationException("bad log type");
+            case MASTER:
+                return MasterLogRecord.fromBytes(buf);
+            case ALLOC_PAGE:
+                return AllocPageLogRecord.fromBytes(buf);
+            case UPDATE_PAGE:
+                return UpdatePageLogRecord.fromBytes(buf);
+            case FREE_PAGE:
+                return FreePageLogRecord.fromBytes(buf);
+            case ALLOC_PART:
+                return AllocPartLogRecord.fromBytes(buf);
+            case FREE_PART:
+                return FreePartLogRecord.fromBytes(buf);
+            case COMMIT_TRANSACTION:
+                return CommitTransactionLogRecord.fromBytes(buf);
+            case ABORT_TRANSACTION:
+                return AbortTransactionLogRecord.fromBytes(buf);
+            case END_TRANSACTION:
+                return EndTransactionLogRecord.fromBytes(buf);
+            case BEGIN_CHECKPOINT:
+                return BeginCheckpointLogRecord.fromBytes(buf);
+            case END_CHECKPOINT:
+                return EndCheckpointLogRecord.fromBytes(buf);
+            case UNDO_ALLOC_PAGE:
+                return UndoAllocPageLogRecord.fromBytes(buf);
+            case UNDO_UPDATE_PAGE:
+                return UndoUpdatePageLogRecord.fromBytes(buf);
+            case UNDO_FREE_PAGE:
+                return UndoFreePageLogRecord.fromBytes(buf);
+            case UNDO_ALLOC_PART:
+                return UndoAllocPartLogRecord.fromBytes(buf);
+            case UNDO_FREE_PART:
+                return UndoFreePartLogRecord.fromBytes(buf);
+            default:
+                throw new UnsupportedOperationException("bad log type");
         }
     }
 
@@ -233,8 +234,12 @@ public abstract class LogRecord {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (o == null || getClass() != o.getClass()) { return false; }
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         LogRecord logRecord = (LogRecord) o;
         return type == logRecord.type;
     }
@@ -247,7 +252,7 @@ public abstract class LogRecord {
     @Override
     public String toString() {
         return "LogRecord{" +
-               "type=" + type +
-               '}';
+                "type=" + type +
+                '}';
     }
 }

@@ -1,7 +1,7 @@
 package edu.berkeley.cs186.database.table.stats;
 
-import java.util.Objects;
 import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * A histogram bucket. There are two types of buckets:
@@ -61,12 +61,12 @@ public class Bucket<T> {
     }
 
     public void increment(float val) {
-        count ++;
+        count++;
         dictionary.add(val);
     }
 
     public void decrement(float val) {
-        count --;
+        count--;
         dictionary.remove(val);
     }
 
@@ -86,7 +86,7 @@ public class Bucket<T> {
         Bucket<?> b = (Bucket<?>) o;
         boolean startEquals = start.equals(b.start);
         boolean endEquals = (end == null && b.end == null) ||
-                            (end != null && b.end != null && end.equals(b.end));
+                (end != null && b.end != null && end.equals(b.end));
         boolean countEquals = count == b.count;
         return startEquals && endEquals && countEquals;
     }

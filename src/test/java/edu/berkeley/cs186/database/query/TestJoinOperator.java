@@ -1,31 +1,30 @@
 package edu.berkeley.cs186.database.query;
 
-import edu.berkeley.cs186.database.*;
-import edu.berkeley.cs186.database.categories.*;
+import edu.berkeley.cs186.database.Database;
+import edu.berkeley.cs186.database.TestUtils;
+import edu.berkeley.cs186.database.TimeoutScaling;
+import edu.berkeley.cs186.database.Transaction;
+import edu.berkeley.cs186.database.categories.Proj3Part1Tests;
+import edu.berkeley.cs186.database.categories.Proj3Tests;
+import edu.berkeley.cs186.database.categories.PublicTests;
 import edu.berkeley.cs186.database.concurrency.DummyLockContext;
+import edu.berkeley.cs186.database.databox.*;
 import edu.berkeley.cs186.database.io.DiskSpaceManager;
 import edu.berkeley.cs186.database.memory.Page;
+import edu.berkeley.cs186.database.table.Record;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-
-import edu.berkeley.cs186.database.databox.BoolDataBox;
-import edu.berkeley.cs186.database.databox.DataBox;
-import edu.berkeley.cs186.database.databox.FloatDataBox;
-import edu.berkeley.cs186.database.databox.IntDataBox;
-import edu.berkeley.cs186.database.databox.StringDataBox;
-import edu.berkeley.cs186.database.table.Record;
-
 import org.junit.experimental.categories.Category;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -59,7 +58,7 @@ public class TestJoinOperator {
     // 4 second max per method tested.
     @Rule
     public TestRule globalTimeout = new DisableOnDebug(Timeout.millis((long) (
-                4000 * TimeoutScaling.factor)));
+            4000 * TimeoutScaling.factor)));
 
     private void startCountIOs() {
         d.getBufferManager().evictAll();
@@ -77,7 +76,7 @@ public class TestJoinOperator {
         long IOs = newIOs - numIOs;
 
         assertTrue(IOs + " I/Os not between " + minIOs + " and " + maxIOs + message,
-                   minIOs <= IOs && IOs <= maxIOs);
+                minIOs <= IOs && IOs <= maxIOs);
         numIOs = newIOs;
     }
 
@@ -88,6 +87,7 @@ public class TestJoinOperator {
     private void checkIOs(long minIOs, long maxIOs) {
         checkIOs(null, minIOs, maxIOs);
     }
+
     private void checkIOs(long numIOs) {
         checkIOs(null, numIOs, numIOs);
     }
@@ -95,8 +95,8 @@ public class TestJoinOperator {
     private void setSourceOperators(TestSourceOperator leftSourceOperator,
                                     TestSourceOperator rightSourceOperator, Transaction transaction) {
         setSourceOperators(
-            new MaterializeOperator(leftSourceOperator, transaction.getTransactionContext()),
-            new MaterializeOperator(rightSourceOperator, transaction.getTransactionContext())
+                new MaterializeOperator(leftSourceOperator, transaction.getTransactionContext()),
+                new MaterializeOperator(rightSourceOperator, transaction.getTransactionContext())
         );
     }
 
@@ -135,11 +135,11 @@ public class TestJoinOperator {
     @Test
     @Category(PublicTests.class)
     public void testSimpleJoinPNLJ() {
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             setSourceOperators(
-                new TestSourceOperator(),
-                new TestSourceOperator(),
-                transaction
+                    new TestSourceOperator(),
+                    new TestSourceOperator(),
+                    transaction
             );
 
             startCountIOs();
@@ -178,11 +178,11 @@ public class TestJoinOperator {
     @Category(PublicTests.class)
     public void testSimpleJoinBNLJ() {
         d.setWorkMem(5); // B=5
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             setSourceOperators(
-                new TestSourceOperator(),
-                new TestSourceOperator(),
-                transaction
+                    new TestSourceOperator(),
+                    new TestSourceOperator(),
+                    transaction
             );
 
             startCountIOs();
@@ -220,7 +220,7 @@ public class TestJoinOperator {
     @Test
     @Category(PublicTests.class)
     public void testSimplePNLJOutputOrder() {
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             Record r1 = TestUtils.createRecordWithAllTypesWithValue(1);
             List<DataBox> r1Vals = r1.getValues();
             Record r2 = TestUtils.createRecordWithAllTypesWithValue(2);
@@ -260,8 +260,8 @@ public class TestJoinOperator {
             }
 
             setSourceOperators(
-                new SequentialScanOperator(transaction.getTransactionContext(), "leftTable"),
-                new SequentialScanOperator(transaction.getTransactionContext(), "rightTable")
+                    new SequentialScanOperator(transaction.getTransactionContext(), "leftTable"),
+                    new SequentialScanOperator(transaction.getTransactionContext(), "rightTable")
             );
 
             startCountIOs();
@@ -315,11 +315,11 @@ public class TestJoinOperator {
     @Category(PublicTests.class)
     public void testSimpleSortMergeJoin() {
         d.setWorkMem(5); // B=5
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             setSourceOperators(
-                new TestSourceOperator(),
-                new TestSourceOperator(),
-                transaction
+                    new TestSourceOperator(),
+                    new TestSourceOperator(),
+                    transaction
             );
 
             startCountIOs();
@@ -357,9 +357,9 @@ public class TestJoinOperator {
 
     @Test
     @Category(PublicTests.class)
-    public void testSortMergeJoinUnsortedInputs()  {
+    public void testSortMergeJoinUnsortedInputs() {
         d.setWorkMem(3); // B=3
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             transaction.createTable(TestUtils.createSchemaWithAllTypes(), "leftTable");
             transaction.createTable(TestUtils.createSchemaWithAllTypes(), "rightTable");
             Record r1 = TestUtils.createRecordWithAllTypesWithValue(1);
@@ -409,8 +409,8 @@ public class TestJoinOperator {
             }
 
             setSourceOperators(
-                new SequentialScanOperator(transaction.getTransactionContext(), "leftTable"),
-                new SequentialScanOperator(transaction.getTransactionContext(), "rightTable")
+                    new SequentialScanOperator(transaction.getTransactionContext(), "leftTable"),
+                    new SequentialScanOperator(transaction.getTransactionContext(), "rightTable")
             );
 
             startCountIOs();
@@ -451,7 +451,7 @@ public class TestJoinOperator {
     @Category(PublicTests.class)
     public void testBNLJDiffOutPutThanPNLJ() {
         d.setWorkMem(4); // B=4
-        try(Transaction transaction = d.beginTransaction()) {
+        try (Transaction transaction = d.beginTransaction()) {
             Record r1 = TestUtils.createRecordWithAllTypesWithValue(1);
             List<DataBox> r1Vals = r1.getValues();
             Record r2 = TestUtils.createRecordWithAllTypesWithValue(2);
@@ -494,8 +494,8 @@ public class TestJoinOperator {
             }
 
             setSourceOperators(
-                new SequentialScanOperator(transaction.getTransactionContext(), "leftTable"),
-                new SequentialScanOperator(transaction.getTransactionContext(), "rightTable")
+                    new SequentialScanOperator(transaction.getTransactionContext(), "leftTable"),
+                    new SequentialScanOperator(transaction.getTransactionContext(), "rightTable")
             );
 
             startCountIOs();

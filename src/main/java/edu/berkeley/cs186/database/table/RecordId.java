@@ -37,9 +37,9 @@ public class RecordId implements Comparable<RecordId> {
         // A RecordId is serialized as its 4-byte page number followed by its
         // 2-byte short.
         return ByteBuffer.allocate(getSizeInBytes())
-               .putLong(pageNum)
-               .putShort(entryNum)
-               .array();
+                .putLong(pageNum)
+                .putShort(entryNum)
+                .array();
     }
 
     public static RecordId fromBytes(Buffer buf) {

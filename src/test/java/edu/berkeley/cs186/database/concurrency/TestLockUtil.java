@@ -1,10 +1,9 @@
 package edu.berkeley.cs186.database.concurrency;
 
-import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.TimeoutScaling;
+import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.categories.Proj4Part2Tests;
 import edu.berkeley.cs186.database.categories.Proj4Tests;
-import edu.berkeley.cs186.database.categories.HiddenTests;
 import edu.berkeley.cs186.database.categories.PublicTests;
 import org.junit.Before;
 import org.junit.Rule;
@@ -18,7 +17,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @Category({Proj4Tests.class, Proj4Part2Tests.class})
 public class TestLockUtil {
@@ -31,7 +29,7 @@ public class TestLockUtil {
     // 1 second per test
     @Rule
     public TestRule globalTimeout = new DisableOnDebug(Timeout.millis((long) (
-                1000 * TimeoutScaling.factor)));
+            1000 * TimeoutScaling.factor)));
 
     @Before
     public void setUp() {
@@ -61,10 +59,10 @@ public class TestLockUtil {
         lockManager.startLog();
         LockUtil.ensureSufficientLockHeld(pageContexts[4], LockType.S);
         assertEquals(Arrays.asList(
-                         "acquire 0 database IS",
-                         "acquire 0 database/table1 IS",
-                         "acquire 0 database/table1/4 S"
-                     ), lockManager.log);
+                "acquire 0 database IS",
+                "acquire 0 database/table1 IS",
+                "acquire 0 database/table1/4 S"
+        ), lockManager.log);
     }
 
     @Test
@@ -74,10 +72,10 @@ public class TestLockUtil {
         lockManager.startLog();
         LockUtil.ensureSufficientLockHeld(pageContexts[4], LockType.X);
         assertEquals(Arrays.asList(
-                         "promote 0 database IX",
-                         "promote 0 database/table1 IX",
-                         "promote 0 database/table1/4 X"
-                     ), lockManager.log);
+                "promote 0 database IX",
+                "promote 0 database/table1 IX",
+                "promote 0 database/table1/4 X"
+        ), lockManager.log);
     }
 
     @Test
@@ -88,8 +86,8 @@ public class TestLockUtil {
         lockManager.startLog();
         LockUtil.ensureSufficientLockHeld(tableContext, LockType.S);
         assertEquals(Collections.singletonList(
-                         "acquire-and-release 0 database/table1 S [database/table1]"
-                     ), lockManager.log);
+                "acquire-and-release 0 database/table1 S [database/table1]"
+        ), lockManager.log);
     }
 
     @Test
@@ -99,8 +97,8 @@ public class TestLockUtil {
         lockManager.startLog();
         LockUtil.ensureSufficientLockHeld(tableContext, LockType.S);
         assertEquals(Collections.singletonList(
-                         "acquire-and-release 0 database/table1 S [database/table1, database/table1/4]"
-                     ), lockManager.log);
+                "acquire-and-release 0 database/table1 S [database/table1, database/table1/4]"
+        ), lockManager.log);
     }
 
     @Test
@@ -110,8 +108,8 @@ public class TestLockUtil {
         lockManager.startLog();
         LockUtil.ensureSufficientLockHeld(pageContexts[4], LockType.S);
         assertEquals(Collections.singletonList(
-                         "acquire 0 database/table1/4 S"
-                     ), lockManager.log);
+                "acquire 0 database/table1/4 S"
+        ), lockManager.log);
     }
 
     @Test
@@ -121,8 +119,8 @@ public class TestLockUtil {
         lockManager.startLog();
         LockUtil.ensureSufficientLockHeld(tableContext, LockType.S);
         assertEquals(Collections.singletonList(
-                         "acquire-and-release 0 database/table1 SIX [database/table1]"
-                     ), lockManager.log);
+                "acquire-and-release 0 database/table1 SIX [database/table1]"
+        ), lockManager.log);
     }
 
     @Test
@@ -134,8 +132,8 @@ public class TestLockUtil {
         lockManager.startLog();
         LockUtil.ensureSufficientLockHeld(tableContext, LockType.S);
         assertEquals(Collections.singletonList(
-                         "acquire-and-release 0 database/table1 SIX [database/table1, database/table1/1, database/table1/2]"
-                     ), lockManager.log);
+                "acquire-and-release 0 database/table1 SIX [database/table1, database/table1/1, database/table1/2]"
+        ), lockManager.log);
     }
 
     @Test

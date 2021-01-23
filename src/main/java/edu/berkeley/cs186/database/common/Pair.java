@@ -33,11 +33,11 @@ public class Pair<A, B> {
 
         Pair<?, ?> p = (Pair<?, ?>) other;
         boolean firstEquals = getFirst() == null
-                              ? p.getFirst() == null
-                              : getFirst().equals(p.getFirst());
+                ? p.getFirst() == null
+                : getFirst().equals(p.getFirst());
         boolean secondEquals = getSecond() == null
-                               ? p.getSecond() == null
-                               : getSecond().equals(p.getSecond());
+                ? p.getSecond() == null
+                : getSecond().equals(p.getSecond());
         return firstEquals && secondEquals;
     }
 

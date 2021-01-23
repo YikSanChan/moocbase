@@ -27,8 +27,8 @@ public class NaiveHashJoin {
      * the in memory hash table by throwing an InvalidArgumentException.
      */
     public NaiveHashJoin(Iterator<Record> leftRelationIterator,
-            BacktrackingIterator<Record> rightRelationIterator, int leftColumnIndex, int rightColumnIndex,
-            TransactionContext transactionContext, Schema leftSchema) {
+                         BacktrackingIterator<Record> rightRelationIterator, int leftColumnIndex, int rightColumnIndex,
+                         TransactionContext transactionContext, Schema leftSchema) {
         this.leftRelationIterator = leftRelationIterator;
         this.rightRelationIterator = rightRelationIterator;
         this.numBuffers = transactionContext.getWorkMemSize();
@@ -71,7 +71,7 @@ public class NaiveHashJoin {
     private List<Record> buildAndProbe(NaiveHashPartition partition, Iterator<Record> rightRecords) {
         if (partition.getNumPages() > this.numBuffers - 2) {
             throw new IllegalArgumentException(
-                "The records in this partition cannot fit in B-2 pages of memory."
+                    "The records in this partition cannot fit in B-2 pages of memory."
             );
         }
         Iterator<Record> leftRecords = partition.getIterator();
@@ -141,6 +141,7 @@ public class NaiveHashJoin {
     }
 
     // Provided Helpers ////////////////////////////////////////////////////////
+
     /**
      * Helper method to create a joined record from a record of the left relation
      * and a record of the right relation.

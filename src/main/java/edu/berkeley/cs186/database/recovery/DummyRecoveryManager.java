@@ -11,10 +11,12 @@ public class DummyRecoveryManager implements RecoveryManager {
     private Map<Long, Transaction> runningTransactions = new HashMap<>();
 
     @Override
-    public void initialize() {}
+    public void initialize() {
+    }
 
     @Override
-    public void setManagers(DiskSpaceManager diskSpaceManager, BufferManager bufferManager) {}
+    public void setManagers(DiskSpaceManager diskSpaceManager, BufferManager bufferManager) {
+    }
 
     @Override
     public void startTransaction(Transaction transaction) {
@@ -40,10 +42,12 @@ public class DummyRecoveryManager implements RecoveryManager {
     }
 
     @Override
-    public void pageFlushHook(long pageLSN) {}
+    public void pageFlushHook(long pageLSN) {
+    }
 
     @Override
-    public void diskIOHook(long pageNum) {}
+    public void diskIOHook(long pageNum) {
+    }
 
     @Override
     public long logPageWrite(long transNum, long pageNum, short pageOffset, byte[] before,
@@ -93,9 +97,11 @@ public class DummyRecoveryManager implements RecoveryManager {
 
     @Override
     public Runnable restart() {
-        return () -> {};
+        return () -> {
+        };
     }
 
     @Override
-    public void close() {}
+    public void close() {
+    }
 }

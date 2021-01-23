@@ -1,12 +1,12 @@
 package edu.berkeley.cs186.database.memory;
 
-import java.util.Iterator;
-import java.util.List;
-
 import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.Schema;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class HashPartition {
     private String tempLeftTableName;

@@ -1,12 +1,12 @@
 package edu.berkeley.cs186.database.query;
 
-import java.util.Iterator;
-
-import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.DatabaseException;
+import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.Schema;
 import edu.berkeley.cs186.database.table.stats.TableStats;
+
+import java.util.Iterator;
 
 class SequentialScanOperator extends QueryOperator {
     private TransactionContext transaction;
@@ -64,7 +64,7 @@ class SequentialScanOperator extends QueryOperator {
     @Override
     public String str() {
         return "type: " + this.getType() + " (cost: " + this.getIOCost() + ")" +
-               "\ntable: " + this.tableName;
+                "\ntable: " + this.tableName;
     }
 
     /**

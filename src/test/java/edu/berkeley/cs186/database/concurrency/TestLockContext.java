@@ -1,20 +1,21 @@
 package edu.berkeley.cs186.database.concurrency;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import edu.berkeley.cs186.database.TimeoutScaling;
 import edu.berkeley.cs186.database.TransactionContext;
-import edu.berkeley.cs186.database.categories.*;
-import edu.berkeley.cs186.database.common.Pair;
-
-import org.junit.*;
+import edu.berkeley.cs186.database.categories.Proj4Part2Tests;
+import edu.berkeley.cs186.database.categories.Proj4Tests;
+import edu.berkeley.cs186.database.categories.PublicTests;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -31,7 +32,7 @@ public class TestLockContext {
     // 1 second per test
     @Rule
     public TestRule globalTimeout = new DisableOnDebug(Timeout.millis((long) (
-                1000 * TimeoutScaling.factor)));
+            1000 * TimeoutScaling.factor)));
 
     @Before
     public void setUp() {
@@ -54,7 +55,7 @@ public class TestLockContext {
         try {
             tableLockContext.acquire(transactions[0], LockType.X);
             fail("Attempting to acquire an X lock with an IS lock on " +
-                 "the parent should throw an InvalidLockException.");
+                    "the parent should throw an InvalidLockException.");
         } catch (InvalidLockException e) {
             // do nothing
         }
@@ -66,8 +67,8 @@ public class TestLockContext {
         dbLockContext.acquire(transactions[0], LockType.IS);
         tableLockContext.acquire(transactions[0], LockType.S);
         Assert.assertEquals(Arrays.asList(new Lock(dbLockContext.getResourceName(), LockType.IS, 0L),
-                                          new Lock(tableLockContext.getResourceName(), LockType.S, 0L)),
-                            lockManager.getLocks(transactions[0]));
+                new Lock(tableLockContext.getResourceName(), LockType.S, 0L)),
+                lockManager.getLocks(transactions[0]));
     }
 
     @Test
@@ -78,9 +79,9 @@ public class TestLockContext {
         pageLockContext.acquire(transactions[0], LockType.S);
 
         Assert.assertEquals(Arrays.asList(new Lock(dbLockContext.getResourceName(), LockType.IX, 0L),
-                                          new Lock(tableLockContext.getResourceName(), LockType.IS, 0L),
-                                          new Lock(pageLockContext.getResourceName(), LockType.S, 0L)),
-                            lockManager.getLocks(transactions[0]));
+                new Lock(tableLockContext.getResourceName(), LockType.IS, 0L),
+                new Lock(pageLockContext.getResourceName(), LockType.S, 0L)),
+                lockManager.getLocks(transactions[0]));
     }
 
     @Test
@@ -91,8 +92,8 @@ public class TestLockContext {
         tableLockContext.release(transactions[0]);
 
         Assert.assertEquals(Collections.singletonList(new Lock(dbLockContext.getResourceName(), LockType.IS,
-                            0L)),
-                            lockManager.getLocks(transactions[0]));
+                        0L)),
+                lockManager.getLocks(transactions[0]));
     }
 
     @Test
@@ -103,7 +104,7 @@ public class TestLockContext {
         try {
             dbLockContext.release(transactions[0]);
             fail("Attemptng to release an IS lock when a child resource " +
-                 "still holds an S locks should throw an InvalidLockException");
+                    "still holds an S locks should throw an InvalidLockException");
         } catch (InvalidLockException e) {
             // do nothing
         }

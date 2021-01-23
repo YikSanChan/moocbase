@@ -1,15 +1,15 @@
 package edu.berkeley.cs186.database.query;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import edu.berkeley.cs186.database.TestUtils;
 import edu.berkeley.cs186.database.memory.BufferManager;
 import edu.berkeley.cs186.database.table.Record;
 import edu.berkeley.cs186.database.table.Schema;
 import edu.berkeley.cs186.database.table.Table;
 import edu.berkeley.cs186.database.table.stats.TableStats;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class TestSourceOperator extends QueryOperator {
     private List<Record> recordList;
@@ -83,7 +83,7 @@ public class TestSourceOperator extends QueryOperator {
     public TableStats estimateStats() {
         Schema schema = this.computeSchema();
         return new TableStats(schema, Table.computeNumRecordsPerPage(BufferManager.EFFECTIVE_PAGE_SIZE,
-                              schema));
+                schema));
     }
 
     @Override

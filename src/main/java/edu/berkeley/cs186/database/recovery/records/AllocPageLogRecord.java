@@ -71,10 +71,10 @@ public class AllocPageLogRecord extends LogRecord {
     public byte[] toBytes() {
         byte[] b = new byte[1 + Long.BYTES + Long.BYTES + Long.BYTES];
         ByteBuffer.wrap(b)
-        .put((byte) getType().getValue())
-        .putLong(transNum)
-        .putLong(pageNum)
-        .putLong(prevLSN);
+                .put((byte) getType().getValue())
+                .putLong(transNum)
+                .putLong(pageNum)
+                .putLong(prevLSN);
         return b;
     }
 
@@ -87,13 +87,19 @@ public class AllocPageLogRecord extends LogRecord {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (o == null || getClass() != o.getClass()) { return false; }
-        if (!super.equals(o)) { return false; }
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         AllocPageLogRecord that = (AllocPageLogRecord) o;
         return transNum == that.transNum &&
-               pageNum == that.pageNum &&
-               prevLSN == that.prevLSN;
+                pageNum == that.pageNum &&
+                prevLSN == that.prevLSN;
     }
 
     @Override
@@ -104,10 +110,10 @@ public class AllocPageLogRecord extends LogRecord {
     @Override
     public String toString() {
         return "AllocPageLogRecord{" +
-               "transNum=" + transNum +
-               ", pageNum=" + pageNum +
-               ", prevLSN=" + prevLSN +
-               ", LSN=" + LSN +
-               '}';
+                "transNum=" + transNum +
+                ", pageNum=" + pageNum +
+                ", prevLSN=" + prevLSN +
+                ", LSN=" + LSN +
+                '}';
     }
 }

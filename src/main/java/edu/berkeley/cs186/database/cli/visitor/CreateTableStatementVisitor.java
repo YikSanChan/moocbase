@@ -1,12 +1,14 @@
 package edu.berkeley.cs186.database.cli.visitor;
 
+import edu.berkeley.cs186.database.Transaction;
+import edu.berkeley.cs186.database.cli.parser.ASTColumnDef;
+import edu.berkeley.cs186.database.cli.parser.ASTTableName;
+import edu.berkeley.cs186.database.cli.parser.Token;
+import edu.berkeley.cs186.database.databox.Type;
+import edu.berkeley.cs186.database.table.Schema;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import edu.berkeley.cs186.database.Transaction;
-import edu.berkeley.cs186.database.databox.Type;
-import edu.berkeley.cs186.database.cli.parser.*;
-import edu.berkeley.cs186.database.table.Schema;
 
 public class CreateTableStatementVisitor extends StatementVisitor {
     public String tableName;
@@ -26,15 +28,18 @@ public class CreateTableStatementVisitor extends StatementVisitor {
         String fieldType = (String) components[1];
         Token param = (Token) components[2];
         fieldNames.add(fieldName);
-        switch(fieldType.toLowerCase()) {
-            case "int":;
+        switch (fieldType.toLowerCase()) {
+            case "int":
+                ;
             case "integer":
                 fieldTypes.add(Type.intType());
                 break;
-            case "char":;
-            case "varchar":;
+            case "char":
+                ;
+            case "varchar":
+                ;
             case "string":
-                if(param == null) {
+                if (param == null) {
                     errorMessages.add(String.format("Missing length for %s(n).", fieldType));
                     return;
                 }
@@ -51,21 +56,22 @@ public class CreateTableStatementVisitor extends StatementVisitor {
             case "long":
                 fieldTypes.add(Type.longType());
                 break;
-            case "bool":;
+            case "bool":
+                ;
             case "boolean":
                 fieldTypes.add(Type.boolType());
                 break;
             default:
-                assert false: String.format(
-                    "Invalid field type \"%s\"",
-                    fieldType
+                assert false : String.format(
+                        "Invalid field type \"%s\"",
+                        fieldType
                 );
         }
     }
 
     public void prettyPrint() {
         System.out.println("CREATE TABLE " + this.tableName + "(");
-        for(int i = 0; i < fieldTypes.size(); i++) {
+        for (int i = 0; i < fieldTypes.size(); i++) {
             if (i > 0) System.out.println(",");
             System.out.print("   " + fieldNames.get(i) + " " + fieldTypes.get(i));
         }
@@ -75,7 +81,7 @@ public class CreateTableStatementVisitor extends StatementVisitor {
     public void execute(Transaction transaction) {
         // transaction
         if (this.errorMessages.size() > 0) {
-            for(String msg: errorMessages) {
+            for (String msg : errorMessages) {
                 System.out.println(msg);
             }
             System.out.println("Failed to execute CREATE TABLE.");

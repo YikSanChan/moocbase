@@ -1,7 +1,7 @@
 package edu.berkeley.cs186.database.common;
 
 public class Bits {
-    public enum Bit { ZERO, ONE }
+    public enum Bit {ZERO, ONE}
 
     /**
      * Get the ith bit of a byte where the 0th bit is the most significant bit
@@ -49,9 +49,15 @@ public class Bits {
         }
         byte mask = (byte) (1 << (7 - i));
         switch (bit) {
-        case ZERO: { return (byte) (b & ~mask); }
-        case ONE: { return (byte) (b | mask); }
-        default: { throw new IllegalArgumentException("Unreachable code."); }
+            case ZERO: {
+                return (byte) (b & ~mask);
+            }
+            case ONE: {
+                return (byte) (b | mask);
+            }
+            default: {
+                throw new IllegalArgumentException("Unreachable code.");
+            }
         }
     }
 

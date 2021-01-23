@@ -62,7 +62,7 @@ public class LockManager {
         @Override
         public String toString() {
             return "Active Locks: " + Arrays.toString(this.locks.toArray()) +
-                   ", Queue: " + Arrays.toString(this.waitingQueue.toArray());
+                    ", Queue: " + Arrays.toString(this.waitingQueue.toArray());
         }
     }
 
@@ -102,7 +102,7 @@ public class LockManager {
      */
     public void acquireAndRelease(TransactionContext transaction, ResourceName name,
                                   LockType lockType, List<ResourceName> releaseLocks)
-    throws DuplicateLockRequestException, NoLockHeldException {
+            throws DuplicateLockRequestException, NoLockHeldException {
         // TODO(proj4_part1): implement
         // You may modify any part of this method. You are not required to keep all your
         // code within the given synchronized block -- in fact,
@@ -150,7 +150,7 @@ public class LockManager {
      * @throws NoLockHeldException if no lock on NAME is held by TRANSACTION
      */
     public void release(TransactionContext transaction, ResourceName name)
-    throws NoLockHeldException {
+            throws NoLockHeldException {
         // TODO(proj4_part1): implement
         // You may modify any part of this method.
         synchronized (this) {
@@ -180,7 +180,7 @@ public class LockManager {
      */
     public void promote(TransactionContext transaction, ResourceName name,
                         LockType newLockType)
-    throws DuplicateLockRequestException, NoLockHeldException, InvalidLockException {
+            throws DuplicateLockRequestException, NoLockHeldException, InvalidLockException {
         // TODO(proj4_part1): implement
         // You may modify any part of this method.
         synchronized (this) {
@@ -213,7 +213,7 @@ public class LockManager {
      */
     public synchronized List<Lock> getLocks(TransactionContext transaction) {
         return new ArrayList<>(transactionLocks.getOrDefault(transaction.getTransNum(),
-                               Collections.emptyList()));
+                Collections.emptyList()));
     }
 
     /**

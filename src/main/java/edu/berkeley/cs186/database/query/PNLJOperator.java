@@ -9,10 +9,10 @@ class PNLJOperator extends BNLJOperator {
                  String rightColumnName,
                  TransactionContext transaction) {
         super(leftSource,
-              rightSource,
-              leftColumnName,
-              rightColumnName,
-              transaction);
+                rightSource,
+                leftColumnName,
+                rightColumnName,
+                transaction);
 
         joinType = JoinType.PNLJ;
         numBuffers = 3;
