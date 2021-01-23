@@ -2,6 +2,7 @@ package edu.berkeley.cs186.database.index;
 
 import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.common.Pair;
+import edu.berkeley.cs186.database.common.iterator.FilterIterator;
 import edu.berkeley.cs186.database.concurrency.LockContext;
 import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.databox.Type;
@@ -13,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * A persistent B+ tree.
@@ -140,7 +142,6 @@ public class BPlusTree {
         // DONE(proj2): implement
         return root.get(key).getKey(key);
 
-
         // TODO(proj4_part3): B+ tree locking
     }
 
@@ -191,10 +192,10 @@ public class BPlusTree {
      * memory will receive 0 points.
      */
     public Iterator<RecordId> scanAll() {
-        // TODO(proj2): Return a BPlusTreeIterator.
-        // TODO(proj4_part3): B+ tree locking
+        // DONE(proj2): Return a BPlusTreeIterator.
+        return new BPlusTreeIterator(x -> true);
 
-        return Collections.emptyIterator();
+        // TODO(proj4_part3): B+ tree locking
     }
 
     /**
@@ -222,10 +223,10 @@ public class BPlusTree {
      */
     public Iterator<RecordId> scanGreaterEqual(DataBox key) {
         typecheck(key);
-        // TODO(proj2): Return a BPlusTreeIterator.
-        // TODO(proj4_part3): B+ tree locking
+        // DONE(proj2): Return a BPlusTreeIterator.
+        return new BPlusTreeIterator(dataBox -> dataBox.compareTo(key) >= 0);
 
-        return Collections.emptyIterator();
+        // TODO(proj4_part3): B+ tree locking
     }
 
     /**
@@ -239,7 +240,7 @@ public class BPlusTree {
      */
     public void put(DataBox key, RecordId rid) {
         typecheck(key);
-        // TODO(proj2): implement
+        // DONE(proj2): implement
         // Note: You should NOT update the root variable directly.
         // Use the provided updateRoot() helper method to change
         // the tree's root if the old root splits.
@@ -413,20 +414,55 @@ public class BPlusTree {
 
     // Iterator ////////////////////////////////////////////////////////////////
     private class BPlusTreeIterator implements Iterator<RecordId> {
-        // TODO(proj2): Add whatever fields and constructors you want here.
+        // DONE(proj2): Add whatever fields and constructors you want here.
+
+        private LeafNode currentLeaf;
+        private int cursor;
+        /** The next object in the iteration */
+        private RecordId nextObject;
+        /** Whether the next object has been calculated yet */
+        private boolean nextObjectSet = false;
+        private final Predicate<DataBox> predicate;
+
+        public BPlusTreeIterator(Predicate<DataBox> predicate) {
+            currentLeaf = root.getLeftmostLeaf();
+            cursor = 0;
+            this.predicate = predicate;
+        }
 
         @Override
         public boolean hasNext() {
-            // TODO(proj2): implement
-
-            return false;
+            // DONE(proj2): implement
+            return nextObjectSet || setNextObject();
         }
 
         @Override
         public RecordId next() {
-            // TODO(proj2): implement
+            // DONE(proj2): implement
+            if (!nextObjectSet && !setNextObject()) {
+                throw new NoSuchElementException();
+            }
+            nextObjectSet = false;
+            return nextObject;
+        }
 
-            throw new NoSuchElementException();
+        /**
+         * Set nextObject to the next object. If there are no more
+         * objects then return false. Otherwise, return true.
+         */
+        private boolean setNextObject() {
+            for (; currentLeaf != null; currentLeaf = currentLeaf.getRightSibling().orElse(null), cursor = 0) {
+                for (; cursor < currentLeaf.getKeys().size(); cursor++) {
+                    if (predicate.test(currentLeaf.getKeys().get(cursor))) {
+                        nextObject = currentLeaf.getRids().get(cursor);
+                        nextObjectSet = true;
+                        // critical, otherwise endless loop
+                        cursor++;
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 }
