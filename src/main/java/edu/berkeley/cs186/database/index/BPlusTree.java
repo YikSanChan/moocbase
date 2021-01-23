@@ -2,7 +2,6 @@ package edu.berkeley.cs186.database.index;
 
 import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.common.Pair;
-import edu.berkeley.cs186.database.common.iterator.FilterIterator;
 import edu.berkeley.cs186.database.concurrency.LockContext;
 import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.databox.Type;
@@ -285,14 +284,34 @@ public class BPlusTree {
      * bulkLoad (see comments in BPlusNode.bulkLoad).
      */
     public void bulkLoad(Iterator<Pair<DataBox, RecordId>> data, float fillFactor) {
-        // TODO(proj2): implement
+        // DONE(proj2): implement
         // Note: You should NOT update the root variable directly.
         // Use the provided updateRoot() helper method to change
         // the tree's root if the old root splits.
+        if (!data.hasNext()) {
+            return;
+        }
+
+        while (data.hasNext()) {
+            Optional<Pair<DataBox, Long>> nextLevelBulkLoadResult = root.bulkLoad(data, fillFactor);
+            if (!nextLevelBulkLoadResult.isPresent()) {
+                return;
+            }
+            DataBox newRootKey = nextLevelBulkLoadResult.get().getFirst();
+            // Right node to the old root
+            long newRightInnerPageNum = nextLevelBulkLoadResult.get().getSecond();
+
+            InnerNode newRoot = new InnerNode(
+                    metadata,
+                    bufferManager,
+                    Collections.singletonList(newRootKey),
+                    Arrays.asList(root.getPage().getPageNum(), newRightInnerPageNum),
+                    lockContext);
+            updateRoot(newRoot);
+            bulkLoad(data, fillFactor);
+        }
 
         // TODO(proj4_part3): B+ tree locking
-
-        return;
     }
 
     /**

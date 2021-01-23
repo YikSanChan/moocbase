@@ -134,9 +134,34 @@ class InnerNode extends BPlusNode {
     @Override
     public Optional<Pair<DataBox, Long>> bulkLoad(Iterator<Pair<DataBox, RecordId>> data,
                                                   float fillFactor) {
-        // TODO(proj2): implement
+        // DONE(proj2): implement
+        if (!data.hasNext()) {
+            return Optional.empty();
+        }
 
-        return Optional.empty();
+        int order = metadata.getOrder();
+        for (int i = children.size() - 1; i < 2 * order + 1; i++) {
+            Optional<Pair<DataBox, Long>> nextLevelBulkLoadResult = getChild(i).bulkLoad(data, fillFactor);
+            if (!nextLevelBulkLoadResult.isPresent()) {
+                sync();
+                return Optional.empty();
+            }
+            keys.add(nextLevelBulkLoadResult.get().getFirst());
+            children.add(nextLevelBulkLoadResult.get().getSecond());
+        }
+        // overflow, then split
+        DataBox splitKey = keys.get(order);
+
+        List<DataBox> currentInnerKeys = new ArrayList<>(keys.subList(0, order));
+        List<Long> currentInnerChildren = new ArrayList<>(children.subList(0, order + 1));
+        List<DataBox> newInnerKeys = new ArrayList<>(keys.subList(order + 1, keys.size()));
+        List<Long> newInnerChildren = new ArrayList<>(children.subList(order + 1, children.size()));
+
+        InnerNode newInner = new InnerNode(metadata, bufferManager, newInnerKeys, newInnerChildren, treeContext);
+        keys = currentInnerKeys;
+        children = currentInnerChildren;
+        sync();
+        return Optional.of(new Pair<>(splitKey, newInner.getPage().getPageNum()));
     }
 
     // See BPlusNode.remove.
