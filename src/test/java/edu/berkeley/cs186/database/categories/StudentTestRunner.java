@@ -1,5 +1,3 @@
 package edu.berkeley.cs186.database.categories;
 
-public interface StudentTestRunner {
-  /* category marker */
-}
+public interface StudentTestRunner { /* category marker */ }

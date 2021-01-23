@@ -10,6 +10,7 @@ import edu.berkeley.cs186.database.table.RecordId;
 import edu.berkeley.cs186.database.table.Schema;
 import edu.berkeley.cs186.database.table.Table;
 import edu.berkeley.cs186.database.table.stats.TableStats;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -20,211 +21,218 @@ import java.util.function.UnaryOperator;
 /**
  * Internal transaction-specific methods, used for implementing parts of the database.
  *
- * <p>The transaction context for the transaction currently running on the current thread can be
- * fetched via TransactionContext::getTransaction; it is only set during the middle of a Transaction
- * call.
+ * The transaction context for the transaction currently running on the current thread
+ * can be fetched via TransactionContext::getTransaction; it is only set during the middle
+ * of a Transaction call.
  */
 public interface TransactionContext extends AutoCloseable {
-  Map<Long, List<TransactionContext>> threadTransactions = new ConcurrentHashMap<>();
+    Map<Long, List<TransactionContext>> threadTransactions = new ConcurrentHashMap<>();
 
-  /**
-   * Fetches the current transaction running on this thread.
-   *
-   * @return transaction actively running on this thread or null if none
-   */
-  static TransactionContext getTransaction() {
-    long threadId = Thread.currentThread().getId();
-    List<TransactionContext> transactions = threadTransactions.get(threadId);
-    if (transactions != null && transactions.size() > 0) {
-      return transactions.get(transactions.size() - 1);
+    /**
+     * Fetches the current transaction running on this thread.
+     * @return transaction actively running on this thread or null if none
+     */
+    static TransactionContext getTransaction() {
+        long threadId = Thread.currentThread().getId();
+        List<TransactionContext> transactions = threadTransactions.get(threadId);
+        if (transactions != null && transactions.size() > 0) {
+            return transactions.get(transactions.size() - 1);
+        }
+        return null;
     }
-    return null;
-  }
 
-  /**
-   * Sets the current transaction running on this thread.
-   *
-   * @param transaction transaction currently running
-   */
-  static void setTransaction(TransactionContext transaction) {
-    long threadId = Thread.currentThread().getId();
-    threadTransactions.putIfAbsent(threadId, new ArrayList<>());
-    threadTransactions.get(threadId).add(transaction);
-  }
-
-  /** Unsets the current transaction running on this thread. */
-  static void unsetTransaction() {
-    long threadId = Thread.currentThread().getId();
-    List<TransactionContext> transactions = threadTransactions.get(threadId);
-    if (transactions == null || transactions.size() == 0) {
-      throw new IllegalStateException("no transaction to unset");
+    /**
+     * Sets the current transaction running on this thread.
+     * @param transaction transaction currently running
+     */
+    static void setTransaction(TransactionContext transaction) {
+        long threadId = Thread.currentThread().getId();
+        threadTransactions.putIfAbsent(threadId, new ArrayList<>());
+        threadTransactions.get(threadId).add(transaction);
     }
-    transactions.remove(transactions.size() - 1);
-  }
 
-  // Status //////////////////////////////////////////////////////////////////
+    /**
+     * Unsets the current transaction running on this thread.
+     */
+    static void unsetTransaction() {
+        long threadId = Thread.currentThread().getId();
+        List<TransactionContext> transactions = threadTransactions.get(threadId);
+        if (transactions == null || transactions.size() == 0) {
+            throw new IllegalStateException("no transaction to unset");
+        }
+        transactions.remove(transactions.size() - 1);
+    }
 
-  /** @return transaction number */
-  long getTransNum();
+    // Status //////////////////////////////////////////////////////////////////
 
-  int getWorkMemSize();
+    /**
+     * @return transaction number
+     */
+    long getTransNum();
 
-  @Override
-  void close();
+    int getWorkMemSize();
 
-  // Temp Tables and Aliasing ////////////////////////////////////////////////
+    @Override
+    void close();
 
-  /**
-   * Create a temporary table within this transaction.
-   *
-   * @param schema the table schema
-   * @return name of the tempTable
-   */
-  String createTempTable(Schema schema);
+    // Temp Tables and Aliasing ////////////////////////////////////////////////
 
-  /** Deletes all temporary tables within this transaction. */
-  void deleteAllTempTables();
+    /**
+     * Create a temporary table within this transaction.
+     *
+     * @param schema the table schema
+     * @return name of the tempTable
+     */
+    String createTempTable(Schema schema);
 
-  /**
-   * Specify an alias mapping for this transaction. Recursive aliasing is not allowed.
-   *
-   * @param aliasMap mapping of alias names to original table names
-   */
-  void setAliasMap(Map<String, String> aliasMap);
+    /**
+     * Deletes all temporary tables within this transaction.
+     */
+    void deleteAllTempTables();
 
-  /** Clears any aliases set. */
-  void clearAliasMap();
+    /**
+     * Specify an alias mapping for this transaction. Recursive aliasing is
+     * not allowed.
+     * @param aliasMap mapping of alias names to original table names
+     */
+    void setAliasMap(Map<String, String> aliasMap);
 
-  // Indices /////////////////////////////////////////////////////////////////
+    /**
+     * Clears any aliases set.
+     */
+    void clearAliasMap();
 
-  /**
-   * Perform a check to see if the database has an index on this (table,column).
-   *
-   * @param tableName the name of the table
-   * @param columnName the name of the column
-   * @return boolean if the index exists
-   */
-  boolean indexExists(String tableName, String columnName);
+    // Indices /////////////////////////////////////////////////////////////////
 
-  void updateIndexMetadata(BPlusTreeMetadata metadata);
+    /**
+     * Perform a check to see if the database has an index on this (table,column).
+     *
+     * @param tableName  the name of the table
+     * @param columnName the name of the column
+     * @return boolean if the index exists
+     */
+    boolean indexExists(String tableName, String columnName);
 
-  // Scans ///////////////////////////////////////////////////////////////////
+    void updateIndexMetadata(BPlusTreeMetadata metadata);
 
-  Iterator<Record> sortedScan(String tableName, String columnName);
+    // Scans ///////////////////////////////////////////////////////////////////
 
-  Iterator<Record> sortedScanFrom(String tableName, String columnName, DataBox startValue);
+    Iterator<Record> sortedScan(String tableName, String columnName);
 
-  Iterator<Record> lookupKey(String tableName, String columnName, DataBox key);
+    Iterator<Record> sortedScanFrom(String tableName, String columnName, DataBox startValue);
 
-  BacktrackingIterator<Record> getRecordIterator(String tableName);
+    Iterator<Record> lookupKey(String tableName, String columnName, DataBox key);
 
-  BacktrackingIterator<Page> getPageIterator(String tableName);
+    BacktrackingIterator<Record> getRecordIterator(String tableName);
 
-  BacktrackingIterator<Record> getBlockIterator(
-      String tableName, Iterator<Page> block, int maxPages);
+    BacktrackingIterator<Page> getPageIterator(String tableName);
 
-  boolean contains(String tableName, String columnName, DataBox key);
+    BacktrackingIterator<Record> getBlockIterator(String tableName, Iterator<Page> block, int maxPages);
 
-  // Record Operations ///////////////////////////////////////////////////////
+    boolean contains(String tableName, String columnName, DataBox key);
 
-  RecordId addRecord(String tableName, List<DataBox> values);
+    // Record Operations ///////////////////////////////////////////////////////
 
-  RecordId deleteRecord(String tableName, RecordId rid);
+    RecordId addRecord(String tableName, List<DataBox> values);
 
-  Record getRecord(String tableName, RecordId rid);
+    RecordId deleteRecord(String tableName, RecordId rid);
 
-  RecordId updateRecord(String tableName, List<DataBox> values, RecordId rid);
+    Record getRecord(String tableName, RecordId rid);
 
-  void runUpdateRecordWhere(
-      String tableName,
-      String targetColumnName,
-      UnaryOperator<DataBox> targetValue,
-      String predColumnName,
-      PredicateOperator predOperator,
-      DataBox predValue);
+    RecordId updateRecord(String tableName, List<DataBox> values, RecordId rid);
 
-  void runDeleteRecordWhere(
-      String tableName, String predColumnName, PredicateOperator predOperator, DataBox predValue);
+    void runUpdateRecordWhere(String tableName, String targetColumnName,
+                              UnaryOperator<DataBox> targetValue,
+                              String predColumnName, PredicateOperator predOperator, DataBox predValue);
 
-  // Table/Schema ////////////////////////////////////////////////////////////
+    void runDeleteRecordWhere(String tableName, String predColumnName, PredicateOperator predOperator,
+                              DataBox predValue);
 
-  /**
-   * @param tableName name of table to get schema of
-   * @return schema of table
-   */
-  Schema getSchema(String tableName);
+    // Table/Schema ////////////////////////////////////////////////////////////
 
-  /**
-   * Same as getSchema, except all column names are fully qualified (tableName.colName).
-   *
-   * @param tableName name of table to get schema of
-   * @return schema of table
-   */
-  Schema getFullyQualifiedSchema(String tableName);
+    /**
+     * @param tableName name of table to get schema of
+     * @return schema of table
+     */
+    Schema getSchema(String tableName);
 
-  Table getTable(String tableName);
+    /**
+     * Same as getSchema, except all column names are fully qualified (tableName.colName).
+     *
+     * @param tableName name of table to get schema of
+     * @return schema of table
+     */
+    Schema getFullyQualifiedSchema(String tableName);
 
-  // Statistics //////////////////////////////////////////////////////////////
+    Table getTable(String tableName);
 
-  /**
-   * @param tableName name of table to get stats of
-   * @return TableStats object of the table
-   */
-  TableStats getStats(String tableName);
+    // Statistics //////////////////////////////////////////////////////////////
 
-  /**
-   * @param tableName name of table
-   * @return number of data pages used by the table
-   */
-  int getNumDataPages(String tableName);
+    /**
+     * @param tableName name of table to get stats of
+     * @return TableStats object of the table
+     */
+    TableStats getStats(String tableName);
 
-  /**
-   * @param tableName name of table
-   * @return number of entries that fit on one page for the table
-   */
-  int getNumEntriesPerPage(String tableName);
+    /**
+     * @param tableName name of table
+     * @return number of data pages used by the table
+     */
+    int getNumDataPages(String tableName);
 
-  /**
-   * @param tableName name of table
-   * @return size of a single row for the table
-   */
-  int getEntrySize(String tableName);
+    /**
+     * @param tableName name of table
+     * @return number of entries that fit on one page for the table
+     */
+    int getNumEntriesPerPage(String tableName);
 
-  /**
-   * @param tableName name of table
-   * @return number of records in the table
-   */
-  long getNumRecords(String tableName);
+    /**
+     * @param tableName name of table
+     * @return size of a single row for the table
+     */
+    int getEntrySize(String tableName);
 
-  /**
-   * @param tableName name of table
-   * @param columnName name of column
-   * @return order of B+ tree index on tableName.columnName
-   */
-  int getTreeOrder(String tableName, String columnName);
+    /**
+     * @param tableName name of table
+     * @return number of records in the table
+     */
+    long getNumRecords(String tableName);
 
-  /**
-   * @param tableName name of table
-   * @param columnName name of column
-   * @return height of B+ tree index on tableName.columnName
-   */
-  int getTreeHeight(String tableName, String columnName);
+    /**
+     * @param tableName name of table
+     * @param columnName name of column
+     * @return order of B+ tree index on tableName.columnName
+     */
+    int getTreeOrder(String tableName, String columnName);
 
-  // Synchronization /////////////////////////////////////////////////////////
+    /**
+     * @param tableName name of table
+     * @param columnName name of column
+     * @return height of B+ tree index on tableName.columnName
+     */
+    int getTreeHeight(String tableName, String columnName);
 
-  /**
-   * prepareBlock acquires the lock backing the condition variable that the transaction waits on.
-   * Must be called before block(), and is used to ensure that the unblock() call corresponding to
-   * the following block() call cannot be run before the transaction blocks.
-   */
-  void prepareBlock();
+    // Synchronization /////////////////////////////////////////////////////////
 
-  /** Blocks the transaction (and thread). prepareBlock() must be called first. */
-  void block();
+    /**
+     * prepareBlock acquires the lock backing the condition variable that the transaction
+     * waits on. Must be called before block(), and is used to ensure that the unblock() call
+     * corresponding to the following block() call cannot be run before the transaction blocks.
+     */
+    void prepareBlock();
 
-  /** Unblocks the transaction (and thread running the transaction). */
-  void unblock();
+    /**
+     * Blocks the transaction (and thread). prepareBlock() must be called first.
+     */
+    void block();
 
-  /** @return if the transaction is blocked */
-  boolean getBlocked();
+    /**
+     * Unblocks the transaction (and thread running the transaction).
+     */
+    void unblock();
+
+    /**
+     * @return if the transaction is blocked
+     */
+    boolean getBlocked();
 }

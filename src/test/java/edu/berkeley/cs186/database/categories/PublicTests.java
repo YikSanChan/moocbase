@@ -1,5 +1,3 @@
 package edu.berkeley.cs186.database.categories;
 
-public interface PublicTests {
-  /* category marker */
-}
+public interface PublicTests { /* category marker */ }
