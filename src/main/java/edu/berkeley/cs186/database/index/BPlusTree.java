@@ -2,6 +2,7 @@ package edu.berkeley.cs186.database.index;
 
 import edu.berkeley.cs186.database.TransactionContext;
 import edu.berkeley.cs186.database.common.Pair;
+import edu.berkeley.cs186.database.common.iterator.FilterIterator;
 import edu.berkeley.cs186.database.concurrency.LockContext;
 import edu.berkeley.cs186.database.databox.DataBox;
 import edu.berkeley.cs186.database.databox.Type;
@@ -223,7 +224,7 @@ public class BPlusTree {
     public Iterator<RecordId> scanGreaterEqual(DataBox key) {
         typecheck(key);
         // DONE(proj2): Return a BPlusTreeIterator.
-        return new BPlusTreeIterator(dataBox -> dataBox.compareTo(key) >= 0);
+        return new BPlusTreeIterator(pair -> pair.getFirst().compareTo(key) >= 0);
 
         // TODO(proj4_part3): B+ tree locking
     }
@@ -432,56 +433,69 @@ public class BPlusTree {
     }
 
     // Iterator ////////////////////////////////////////////////////////////////
+
+    // It is an Iterator<RecordId> but the predicate decision also depends on DataBox.
+    // For this reason, we're not able to wrap a normal Iterator<RecordId> with a standard FilterIterator.
+    // One possible solution is to implement a Iterator<Pair<DataBox, RecordId>> that doesn't
+    // take Predicate in constructor, and wrap this Iterator with a standard FilterIterator.
     private class BPlusTreeIterator implements Iterator<RecordId> {
         // DONE(proj2): Add whatever fields and constructors you want here.
 
-        private LeafNode currentLeaf;
-        private int cursor;
-        /** The next object in the iteration */
-        private RecordId nextObject;
-        /** Whether the next object has been calculated yet */
-        private boolean nextObjectSet = false;
-        private final Predicate<DataBox> predicate;
+        private final Iterator<Pair<DataBox, RecordId>> iterator;
 
-        public BPlusTreeIterator(Predicate<DataBox> predicate) {
-            currentLeaf = root.getLeftmostLeaf();
-            cursor = 0;
-            this.predicate = predicate;
+        public BPlusTreeIterator(Predicate<Pair<DataBox, RecordId>> predicate) {
+            iterator = new FilterIterator<>(new BPlusTreeEntryIterator(), predicate);
         }
 
         @Override
         public boolean hasNext() {
-            // DONE(proj2): implement
-            return nextObjectSet || setNextObject();
+            return iterator.hasNext();
         }
 
         @Override
         public RecordId next() {
-            // DONE(proj2): implement
-            if (!nextObjectSet && !setNextObject()) {
-                throw new NoSuchElementException();
-            }
-            nextObjectSet = false;
-            return nextObject;
+            return iterator.next().getSecond();
+        }
+    }
+
+    // See below, this way both the BPlusTreeEntryIterator and BPlusTreeIterator are easier to implement
+    // as they decouple from each other.
+    private class BPlusTreeEntryIterator implements Iterator<Pair<DataBox, RecordId>> {
+
+        private LeafNode currentLeaf;
+        private Iterator<Pair<DataBox, RecordId>> iterator;
+
+        BPlusTreeEntryIterator() {
+            currentLeaf = root.getLeftmostLeaf();
+            iterator = getZipped(currentLeaf).iterator();
         }
 
-        /**
-         * Set nextObject to the next object. If there are no more
-         * objects then return false. Otherwise, return true.
-         */
-        private boolean setNextObject() {
-            for (; currentLeaf != null; currentLeaf = currentLeaf.getRightSibling().orElse(null), cursor = 0) {
-                for (; cursor < currentLeaf.getKeys().size(); cursor++) {
-                    if (predicate.test(currentLeaf.getKeys().get(cursor))) {
-                        nextObject = currentLeaf.getRids().get(cursor);
-                        nextObjectSet = true;
-                        // critical, otherwise endless loop
-                        cursor++;
-                        return true;
-                    }
+        @Override
+        public boolean hasNext() {
+            while (!iterator.hasNext()) {
+                if (!currentLeaf.getRightSibling().isPresent()) {
+                    return false;
                 }
+                currentLeaf = currentLeaf.getRightSibling().get();
+                iterator = getZipped(currentLeaf).iterator();
             }
-            return false;
+            return true;
+        }
+
+        @Override
+        public Pair<DataBox, RecordId> next() {
+            if (hasNext()) {
+                return iterator.next();
+            }
+            throw new NoSuchElementException();
+        }
+
+        private List<Pair<DataBox, RecordId>> getZipped(LeafNode leaf) {
+            List<Pair<DataBox, RecordId>> zipped = new ArrayList<>();
+            for (int i = 0; i < leaf.getKeys().size(); i++) {
+                zipped.add(new Pair<>(leaf.getKeys().get(i), leaf.getRids().get(i)));
+            }
+            return zipped;
         }
     }
 }
