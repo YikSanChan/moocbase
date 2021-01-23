@@ -1,6 +1,10 @@
 # MOOCbase
 
-UCB CS 186, Fall 2020, see site http://cs186berkeley.net/fa20/
+UCB CS 186, Fall 2020.
+- Site http://cs186berkeley.net/fa20/
+- Videos: https://www.youtube.com/user/CS186Berkeley/playlists
+- Projects: see project-gitbook/
+- Code: see src/
 
 ---
 
