@@ -309,7 +309,6 @@ public class BPlusTree {
                     Arrays.asList(root.getPage().getPageNum(), newRightInnerPageNum),
                     lockContext);
             updateRoot(newRoot);
-            bulkLoad(data, fillFactor);
         }
 
         // TODO(proj4_part3): B+ tree locking
